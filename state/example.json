@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "user": {
+    "xp": 1240,
+    "salmon": 5,
+    "salmon_cap": 5,
+    "salmon_last_reset": "2026-06-02T00:00:00Z"
+  },
+  "topics": {
+    "python-decorators": {
+      "status": "in_progress",
+      "started_at": "2026-06-02T10:00:00Z",
+      "current_concept_index": 2,
+      "salmon_paid": true,
+      "calibration": "intermediate",
+      "concepts": [
+        {
+          "name": "closures",
+          "status": "acquired",
+          "first_attempt": "success",
+          "applications_distinct": 2
+        },
+        {
+          "name": "first-class functions",
+          "status": "acquired",
+          "first_attempt": "success",
+          "applications_distinct": 2
+        },
+        {
+          "name": "wrapper functions",
+          "status": "in_progress",
+          "first_attempt": "needed_hint",
+          "applications_distinct": 1
+        },
+        {
+          "name": "@ syntax",
+          "status": "pending",
+          "first_attempt": null,
+          "applications_distinct": 0
+        },
+        {
+          "name": "decorators with arguments",
+          "status": "pending",
+          "first_attempt": null,
+          "applications_distinct": 0
+        },
+        {
+          "name": "real-world patterns",
+          "status": "pending",
+          "first_attempt": null,
+          "applications_distinct": 0
+        }
+      ],
+      "feedback_log": []
+    },
+    "react-suspense": {
+      "status": "completed",
+      "started_at": "2026-05-28T13:00:00Z",
+      "completed_at": "2026-05-28T14:30:00Z",
+      "current_concept_index": 4,
+      "salmon_paid": true,
+      "calibration": "intermediate",
+      "concepts": [
+        {
+          "name": "render props",
+          "status": "acquired",
+          "first_attempt": "success",
+          "applications_distinct": 2
+        },
+        {
+          "name": "data fetching patterns",
+          "status": "acquired",
+          "first_attempt": "needed_hint",
+          "applications_distinct": 2
+        },
+        {
+          "name": "Suspense boundary",
+          "status": "acquired",
+          "first_attempt": "needed_hint",
+          "applications_distinct": 2
+        },
+        {
+          "name": "ErrorBoundary",
+          "status": "acquired",
+          "first_attempt": "needed_reveal",
+          "applications_distinct": 2
+        },
+        {
+          "name": "real-world composition",
+          "status": "acquired",
+          "first_attempt": "success",
+          "applications_distinct": 2
+        }
+      ],
+      "xp_earned_total": 180,
+      "feedback_log": [
+        {
+          "ts": "2026-05-28T14:31:00Z",
+          "thumbs": "up",
+          "targeted_question": "Was there a moment where I gave too much away?",
+          "targeted_answer": "No, the Suspense-boundary hint at rung 3 was exactly the level I needed."
+        }
+      ]
+    }
+  }
+}
