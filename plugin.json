@@ -1,0 +1,9 @@
+{
+  "name": "llm-tutor",
+  "displayName": "LLM Tutor",
+  "description": "Socratic-method tutor for Claude Code. Asks questions, reveals hints in layers, refuses to give you the answer until you've made the discovery yourself.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Flagrare"
+  }
+}
