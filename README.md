@@ -70,6 +70,17 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 - [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / salmon / current topic
 - [ ] Plugin marketplace publishing
 
+## Design constraint: no plugin dependencies
+
+llm-tutor depends only on standard Claude Code primitives — built-in tools (Bash, Read, Grep, Glob, Edit, WebFetch, etc.), the plugin component types defined in Claude Code's plugin reference (skills, slash commands, hooks, output styles), and the user's filesystem. It does **not** depend on any other plugin, skill ecosystem, or third-party Claude Code extension.
+
+That means:
+- `/tutor-codebase <path>` implements its own file exploration using Read/Grep/Glob — it doesn't call out to other plugins' codebase-exploration skills.
+- The persona files, dialogue engine, and gamification all ship inside this plugin. No "install these two other plugins first" friction.
+- If you install llm-tutor onto a fresh Claude Code install, it works.
+
+The trade-off is some duplication of effort (e.g., we re-implement codebase exploration patterns that exist in other places). The benefit is that the user only installs one thing, and the plugin can't be broken by changes to external plugins.
+
 ## Relationship to flagrare:tutor
 
 A standalone Socratic-tutor skill — invoked once per session, no progress tracking, no currency — exists in [flagrare/agent-skills](https://github.com/Flagrare/agent-skills) as `flagrare:tutor`. That's the right choice if you want the Socratic mechanism without the rest of this plugin.

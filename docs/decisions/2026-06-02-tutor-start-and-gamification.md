@@ -8,6 +8,17 @@
 
 The three personas (Echo, Cipher, Vex) are written and shipped. Before writing the `/tutor-start` skill or the `UserPromptSubmit` hook for currency accounting, five concrete design decisions needed to be locked in. The research catalog provided the evidence base; this doc records the decisions.
 
+## Architectural constraint (applies to all 5 decisions and all forthcoming implementation work)
+
+**llm-tutor depends only on standard Claude Code primitives.** Built-in tools (Bash, Read, Grep, Glob, Edit, WebFetch, etc.), the plugin component types defined in Claude Code's plugin reference (skills, slash commands, hooks, output styles), and the user's filesystem. No dependency on other plugins, skill ecosystems, or third-party Claude Code extensions.
+
+Practical implications:
+- `/tutor-codebase <path>` must implement its own file exploration using Read/Grep/Glob — it does NOT call out to other codebase-exploration skills (e.g., `flagrare:codebase-explore` is a useful pattern reference but not a runtime dependency).
+- The dialogue engine, gamification, and feedback logic all ship inside this plugin. No "install these two other plugins first" friction.
+- If a feature would naturally borrow logic from another skill, the implementation reproduces the pattern in llm-tutor rather than calling the other skill.
+
+The trade-off: some duplication of effort. The benefit: zero coupling to external plugins; the plugin can't be broken by changes elsewhere.
+
 These decisions affect:
 - The `/tutor-start` skill (calibration flow, path generation, surface format)
 - The `state.json` schema (what we persist per concept across sessions)
