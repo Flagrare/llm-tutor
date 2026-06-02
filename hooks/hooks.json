@@ -1,0 +1,15 @@
+{
+  "description": "Daily salmon refill check — runs before every user prompt. Idempotent; no-op when less than a day has passed since the last reset. Exits silently when no state file exists (i.e., user hasn't started using the plugin yet).",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/refill-salmon.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

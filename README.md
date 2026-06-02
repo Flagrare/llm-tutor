@@ -63,6 +63,7 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 - [x] Three personas with anti-dependency philosophy (Echo / Cipher / Vex)
 - [x] Design decisions locked: calibration depth, path format, state schema, feedback flow ([`docs/decisions/`](./docs/decisions/))
 - [x] `state.json` schema + helper script (`scripts/state.sh`) with subcommands for get/set/add/refill-salmon
+- [x] `UserPromptSubmit` hook — daily salmon refill check, silent and idempotent
 - [ ] `/tutor-start <subject>` skill — dynamic curriculum scaffolding for any topic
 - [ ] `/tutor-codebase <path>` skill — codebase-grounded tutoring
 - [ ] `/tutor-project` skill — tutor on current work
