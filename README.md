@@ -64,7 +64,7 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 - [x] Design decisions locked: calibration depth, path format, state schema, feedback flow ([`docs/decisions/`](./docs/decisions/))
 - [x] `state.json` schema + helper script (`scripts/state.sh`) with subcommands for get/set/add/refill-salmon
 - [x] `UserPromptSubmit` hook — daily salmon refill check, silent and idempotent
-- [ ] `/tutor-start <subject>` skill — dynamic curriculum scaffolding for any topic
+- [x] `/tutor-start <subject>` skill — generates 5–8 concept path, 3-turn calibration, salmon charge, novice/intermediate branch, hand-off to active persona
 - [ ] `/tutor-codebase <path>` skill — codebase-grounded tutoring
 - [ ] `/tutor-project` skill — tutor on current work
 - [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
