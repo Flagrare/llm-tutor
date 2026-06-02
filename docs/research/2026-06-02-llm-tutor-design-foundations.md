@@ -239,6 +239,7 @@ Boots's improvement loop is informal (Discord + thumbs-down). Lane Wagner: "Givi
 
 - **Persona files** (`output-styles/echo.md`, `cipher.md`, `vex.md`) — "Why you exist" section in each persona was written before this catalog landed; the anti-dependency framing is what these sources empirically back. Cross-link to be added when personas are next revised.
 - **Project README** — convivial-tool framing, "teach me this codebase" positioning, anti-dependency mission statement all trace to these sources.
-- **Forthcoming `/tutor-start` skill** — graduated prompts (ZPD), Knowledge Space DAG (Doignon-Falmagne), Productive Failure bifurcation (Kapur), two-application acquisition rule (KST).
-- **Forthcoming `state.json` schema** — per-concept first-attempt tracking (SDT/competence feedback), structured feedback collection (Boots learning).
+- **[`docs/decisions/2026-06-02-tutor-start-and-gamification.md`](../decisions/2026-06-02-tutor-start-and-gamification.md)** — five locked-in design decisions (calibration depth, path surfacing format, state schema, feedback flow, rotating-question bank) cite specific sources in this catalog as their backing.
+- **Forthcoming `/tutor-start` skill** — implements D1, D2 from the decisions doc.
+- **Forthcoming `UserPromptSubmit` hook + `/tutor-done` skill** — implement D3, D4, D5 from the decisions doc.
 - **Forthcoming `/tutor-codebase <path>` skill** — positioned as the distinctive value vs ChatGPT Study Mode + TutorAI.
