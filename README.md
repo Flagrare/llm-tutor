@@ -1,12 +1,31 @@
 # llm-tutor
 
-A Claude Code plugin that turns Claude into a gamified Socratic tutor. Pick a teacher (Echo, Cipher, or Vex), work through lessons at your own pace, spend "baked salmon" to ask the teacher for help, earn XP when you complete a lesson on your own. Inspired by Boots from boot.dev, but for any subject and any session.
+A Claude Code plugin that turns Claude into a Socratic tutor for *anything you want to learn* — any codebase, any technology, any project, any concept. Pick a teacher (Echo, Cipher, or Vex), point them at a subject, spend "baked salmon" to bring them in when you're stuck, and earn XP when you understand something on your own.
 
-## Why a plugin
+Inspired by Boots from boot.dev, but generalized: no fixed curriculum, no chosen topics. The tutor scaffolds a path through whatever you bring it.
 
-A standalone tutor skill — invoked once per session, no progress tracking, no currency — exists in [flagrare/agent-skills](https://github.com/Flagrare/agent-skills) under `flagrare:tutor`. Use that one if you want the Socratic mechanism without the rest.
+## Why this exists
 
-This plugin is for people who want the **full Boots-style experience**: a curriculum to work through, a teacher you build a relationship with across sessions, friction (the salmon cost) that creates honest "do I actually need help right now?" moments, and persistent progress so your work compounds.
+> An LLM that exists to make itself less necessary.
+
+Most LLM-as-helper relationships build dependency — you get faster at asking the AI to do things, never build the underlying skill yourself. The relationship is profitable for the AI's owner, expensive for you, and over time, *alienating*: you stop being someone who understands things and start being someone who knows how to prompt for things.
+
+llm-tutor is the alternative. The Socratic guardrails (no answers, only questions; hints in layers; explicit friction to ask for help) aren't a teaching style choice — they're an *anti-capture* mechanism. The point isn't to be the best AI tutor. The point is to be a tutor that, after working with it, leaves you needing it less.
+
+## What you can tutor on
+
+The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the path.
+
+```
+/tutor-start <subject>      "teach me Python decorators"
+/tutor-codebase <path>      "tutor me through how auth works in this repo"
+/tutor-project              "tutor me on what I'm currently working on"
+/tutor-resume               pick up where you left off
+/tutor-status               show what's open, XP, salmon
+/tutor-done                 mark current topic as understood; claim XP
+```
+
+The same teacher works for all of it — your codebase, a new framework, a CS concept you've been meaning to grok, a piece of work you're stuck on. The teacher's identity is stable; what they're teaching shifts to whatever you brought them.
 
 ## The three teachers
 
@@ -17,21 +36,21 @@ Personas vary along **voice**, **pedagogy**, and **framing** — not just tone.
 | **Voice** | Calm, observational. Mirrors your thinking back. | Knowing, slightly mysterious. Treats concepts as puzzles. | Direct, pushy. Won't accept vague answers. |
 | **Pedagogy** | Patient. Stays at "what do you notice?" longer than most teachers. | Standard pace. Counterexample questions for partial understanding. | Demanding. Won't escalate hints until you articulate. |
 | **Framing** | Discovery. "What's that telling you?" | Puzzle. "Here's the clue — what's the missing piece?" | Challenge. "Be precise. Prove it." |
-| **Best for** | Exploratory learning, when you want to think out loud | Intermediate learners who want structure | Topics you've been stuck on; experienced learners who want to be pushed |
+| **Best for** | Exploratory learning; thinking out loud | Intermediate learners who want structure | Topics you've been stuck on; when you want to be pushed |
 
-Pick one at the start of a study session via `/config` → Output style. You can switch between study sessions but not mid-session (the session would feel like a different conversation halfway through).
+Pick one at the start of a study session via `/config` → Output style. You can switch between sessions but not mid-session — committing to one teacher for a while makes it feel like a relationship, not a feature menu.
 
 ## The salmon economy
 
-Borrowed from boot.dev's Boots. Three things you track:
+Borrowed from boot.dev's Boots:
 
 | | What it is |
 |---|---|
-| **XP** | Permanent. Earned by completing lessons on your own. Spent when you can't afford a salmon. |
-| **Baked salmon (🐟)** | Your "ask the teacher" currency. Costs 1 salmon to bring the teacher in mid-lesson. Resets daily (?). |
-| **Lessons complete** | Permanent progress. |
+| **XP** | Permanent. Earned by understanding a topic without leaning on the tutor too much. Spent when you can't afford a salmon. |
+| **Baked salmon (🐟)** | Currency to ask the tutor for help during an active topic. Resets daily. |
+| **Topics understood** | Permanent progress. Earned by `/tutor-done`-ing a topic. |
 
-If you have salmon, asking the teacher for help during a lesson costs 1 salmon. If you don't have any, it costs 50% of the XP you'd earn from completing the lesson. After you complete a lesson, the teacher is free to chat with about that material.
+When you've got salmon, asking the tutor for help during a topic costs 1 salmon. When you don't, it costs a chunk of the XP you'd have earned from understanding the topic on your own. After you `/tutor-done` a topic, the tutor is free to chat with about it.
 
 The friction is the point: it makes you genuinely consider "do I need help, or have I just not tried hard enough?" — without forbidding help when you actually need it.
 
@@ -39,31 +58,33 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 
 **Pre-alpha.** Currently shipping:
 
-- [x] Persona output style: Echo (calm, patient, discovery-framing)
-- [ ] Personas: Cipher, Vex
-- [ ] State file schema (`state.json`: XP, salmon, current lesson, history)
-- [ ] Lesson skill (`/tutor-lesson <N>`) — loads lesson content, engages strict dialogue mode
-- [ ] Curriculum browser (`/tutor-curriculum`)
-- [ ] Status (`/tutor-status`)
-- [ ] Lesson completion (`/tutor-complete`)
+- [x] Three personas with anti-dependency philosophy (Echo / Cipher / Vex)
+- [ ] `state.json` schema (XP, salmon, current topic, history)
+- [ ] `/tutor-start <subject>` skill — dynamic curriculum scaffolding for any topic
+- [ ] `/tutor-codebase <path>` skill — codebase-grounded tutoring
+- [ ] `/tutor-project` skill — tutor on current work
+- [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
 - [ ] `UserPromptSubmit` hook for salmon/XP accounting
-- [ ] First lesson set (TBD topic)
-- [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / salmon / current lesson
+- [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / salmon / current topic
+- [ ] Plugin marketplace publishing
 
-## How to test the Echo persona right now
+## Relationship to flagrare:tutor
 
-Without installing as a plugin, you can symlink the output style into your user output-styles directory:
+A standalone Socratic-tutor skill — invoked once per session, no progress tracking, no currency — exists in [flagrare/agent-skills](https://github.com/Flagrare/agent-skills) as `flagrare:tutor`. That's the right choice if you want the Socratic mechanism without the rest of this plugin.
+
+llm-tutor is for users who want the full Boots-style experience: a teacher you build a relationship with across sessions, friction that creates honest "do I actually need help right now?" moments, and persistent progress so your work compounds. The two projects are complementary, not competing.
+
+## How to try a persona right now
+
+Without installing as a plugin, you can symlink one of the output styles into your user output-styles directory:
 
 ```bash
 mkdir -p ~/.claude/output-styles
 ln -sf $(pwd)/output-styles/echo.md ~/.claude/output-styles/echo.md
+# or cipher.md or vex.md
 ```
 
-Then `/config` → Output style → **Echo** → `/clear`. The strict dialogue rules apply, but currency/lessons aren't wired up yet, so this is just persona testing.
-
-## Install (eventually)
-
-Will be installable via Claude Code's plugin system once the curriculum and gamification layers are built. Not yet.
+Then `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. The persona's voice and disposition apply, but currency/topics aren't wired up yet, so this is just persona testing.
 
 ## License
 
