@@ -12,6 +12,8 @@ Most LLM-as-helper relationships build dependency — you get faster at asking t
 
 llm-tutor is the alternative. The Socratic guardrails (no answers, only questions; hints in layers; explicit friction to ask for help) aren't a teaching style choice — they're an *anti-capture* mechanism. The point isn't to be the best AI tutor. The point is to be a tutor that, after working with it, leaves you needing it less.
 
+This isn't just a stance — it's empirically backed. A 2025 PNAS study found ChatGPT-with-answers users scored 17% worse on later unsupported tasks; Socratic-style users didn't degrade. An MIT EEG study showed AI-first usage produces measurable *cognitive debt*. The plugin's design is grounded in this evidence; see [`docs/research/2026-06-02-llm-tutor-design-foundations.md`](./docs/research/2026-06-02-llm-tutor-design-foundations.md) for the full research catalog. The framing language we use ("convivial tool") comes from Illich, 1973 — the theoretical lineage we're standing in.
+
 ## What you can tutor on
 
 The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the path.
