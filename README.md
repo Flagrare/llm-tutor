@@ -67,6 +67,7 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 - [x] `/tutor-start <subject>` skill — generates 5–8 concept path, 3-turn calibration, salmon charge, novice/intermediate branch, hand-off to active persona
 - [x] `/tutor-done` skill — XP from per-concept first-attempt quality, hybrid feedback flow (thumbs + targeted rotating question with salmon rewards), feedback logged for analysis
 - [x] `/tutor-path` skill — render the learning path on demand with state markers and dependency annotations (internal-by-default)
+- [x] `/tutor-status` skill — dashboard: XP, salmon balance + refill ETA, active topics with progress, completed topics with XP earned, lifetime stats
 - [ ] `/tutor-codebase <path>` skill — codebase-grounded tutoring
 - [ ] `/tutor-project` skill — tutor on current work
 - [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
