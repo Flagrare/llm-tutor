@@ -1,6 +1,6 @@
 # llm-tutor
 
-A Claude Code plugin that turns Claude into a Socratic tutor for *anything you want to learn* — any codebase, any technology, any project, any concept. Pick a teacher (Echo, Cipher, or Vex), point them at a subject, spend "baked salmon" to bring them in when you're stuck, and earn XP when you understand something on your own.
+A Claude Code plugin that turns Claude into a Socratic tutor for *anything you want to learn* — any codebase, any technology, any project, any concept. Pick a teacher (Echo, Cipher, or Vex), point them at a subject, spend "cycle" to bring them in when you're stuck, and earn XP when you understand something on your own.
 
 Inspired by Boots from boot.dev, but generalized: no fixed curriculum, no chosen topics. The tutor scaffolds a path through whatever you bring it.
 
@@ -23,7 +23,7 @@ The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the p
 /tutor-codebase <path>      "tutor me through how auth works in this repo"
 /tutor-project              "tutor me on what I'm currently working on"
 /tutor-resume               pick up where you left off
-/tutor-status               show what's open, XP, salmon
+/tutor-status               show what's open, XP, cycles
 /tutor-done                 mark current topic as understood; claim XP
 ```
 
@@ -42,17 +42,17 @@ Personas vary along **voice**, **pedagogy**, and **framing** — not just tone.
 
 Pick one at the start of a study session via `/config` → Output style. You can switch between sessions but not mid-session — committing to one teacher for a while makes it feel like a relationship, not a feature menu.
 
-## The salmon economy
+## The cycles economy
 
 Borrowed from boot.dev's Boots:
 
 | | What it is |
 |---|---|
-| **XP** | Permanent. Earned by understanding a topic without leaning on the tutor too much. Spent when you can't afford a salmon. |
-| **Baked salmon (🐟)** | Currency to ask the tutor for help during an active topic. Resets daily. |
+| **XP** | Permanent. Earned by understanding a topic without leaning on the tutor too much. Spent when you can't afford a cycle. |
+| **Cycle (⚡)** | Currency to ask the tutor for help during an active topic. Resets daily. |
 | **Topics understood** | Permanent progress. Earned by `/tutor-done`-ing a topic. |
 
-When you've got salmon, asking the tutor for help during a topic costs 1 salmon. When you don't, it costs a chunk of the XP you'd have earned from understanding the topic on your own. After you `/tutor-done` a topic, the tutor is free to chat with about it.
+When you've got cycles, asking the tutor for help during a topic costs 1 cycle. When you don't, it costs a chunk of the XP you'd have earned from understanding the topic on your own. After you `/tutor-done` a topic, the tutor is free to chat with about it.
 
 The friction is the point: it makes you genuinely consider "do I need help, or have I just not tried hard enough?" — without forbidding help when you actually need it.
 
@@ -62,18 +62,18 @@ The friction is the point: it makes you genuinely consider "do I need help, or h
 
 - [x] Three personas with anti-dependency philosophy (Echo / Cipher / Vex)
 - [x] Design decisions locked: calibration depth, path format, state schema, feedback flow ([`docs/decisions/`](./docs/decisions/))
-- [x] `state.json` schema + helper script (`scripts/state.sh`) with subcommands for get/set/add/refill-salmon
-- [x] `UserPromptSubmit` hook — daily salmon refill check, silent and idempotent
-- [x] `/tutor-start <subject>` skill — generates 5–8 concept path, 3-turn calibration, salmon charge, novice/intermediate branch, hand-off to active persona
-- [x] `/tutor-done` skill — XP from per-concept first-attempt quality, hybrid feedback flow (thumbs + targeted rotating question with salmon rewards), feedback logged for analysis
+- [x] `state.json` schema + helper script (`scripts/state.sh`) with subcommands for get/set/add/refill-cycles
+- [x] `UserPromptSubmit` hook — daily cycles refill check, silent and idempotent
+- [x] `/tutor-start <subject>` skill — generates 5–8 concept path, 3-turn calibration, cycles charge, novice/intermediate branch, hand-off to active persona
+- [x] `/tutor-done` skill — XP from per-concept first-attempt quality, hybrid feedback flow (thumbs + targeted rotating question with cycles rewards), feedback logged for analysis
 - [x] `/tutor-path` skill — render the learning path on demand with state markers and dependency annotations (internal-by-default)
-- [x] `/tutor-status` skill — dashboard: XP, salmon balance + refill ETA, active topics with progress, completed topics with XP earned, lifetime stats
+- [x] `/tutor-status` skill — dashboard: XP, cycles balance + refill ETA, active topics with progress, completed topics with XP earned, lifetime stats
 - [x] `/tutor-resume` skill — pick up a paused topic with a brief orientation (current concept, acquired so far, upcoming) and hand off to the persona
 - [ ] `/tutor-codebase <path>` skill — codebase-grounded tutoring
 - [ ] `/tutor-project` skill — tutor on current work
 - [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
-- [ ] `UserPromptSubmit` hook for salmon/XP accounting
-- [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / salmon / current topic
+- [ ] `UserPromptSubmit` hook for cycles/XP accounting
+- [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / cycles / current topic
 - [ ] Plugin marketplace publishing
 
 ## Design constraint: no plugin dependencies

@@ -2,16 +2,16 @@
   "schema_version": 1,
   "user": {
     "xp": 1240,
-    "salmon": 5,
-    "salmon_cap": 5,
-    "salmon_last_reset": "2026-06-02T00:00:00Z"
+    "cycles": 5,
+    "cycles_cap": 5,
+    "cycles_last_reset": "2026-06-02T00:00:00Z"
   },
   "topics": {
     "python-decorators": {
       "status": "in_progress",
       "started_at": "2026-06-02T10:00:00Z",
       "current_concept_index": 2,
-      "salmon_paid": true,
+      "cycles_paid": true,
       "calibration": "intermediate",
       "concepts": [
         {
@@ -64,7 +64,7 @@
       "started_at": "2026-05-28T13:00:00Z",
       "completed_at": "2026-05-28T14:30:00Z",
       "current_concept_index": 4,
-      "salmon_paid": true,
+      "cycles_paid": true,
       "calibration": "intermediate",
       "concepts": [
         {

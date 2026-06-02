@@ -30,7 +30,7 @@ These decisions affect:
 Defined inline for any reader unfamiliar with the project's terms:
 
 - **XP** (experience points) — the permanent score. Goes up when you complete topics. Never resets.
-- **Salmon** — the consumable currency. Resets daily. You spend it to bring the tutor in mid-topic. Borrowed name from boot.dev's "baked salmon" — same idea.
+- **Cycles** — the consumable currency. Resets daily. You spend it to bring the tutor in mid-topic. Borrowed name from boot.dev's "cycle" — same idea.
 - **Learning path** (sometimes "concept map") — the ordered list of sub-concepts the tutor plans to walk you through for a given topic. The tutor generates it on session start and keeps it internal unless you ask to see it.
 - **Concept** — one node on the learning path. E.g., for "Python decorators", `closures` is a concept; `wrapper functions` is another.
 - **Topic** — what you asked to learn. E.g., `python-decorators`, `react-suspense`, `auth-in-this-repo`.
@@ -102,15 +102,15 @@ Path for Python decorators (6 concepts):
 {
   "user": {
     "xp": 1240,
-    "salmon": 5,
-    "salmon_last_reset": "2026-06-02T00:00:00Z"
+    "cycles": 5,
+    "cycles_last_reset": "2026-06-02T00:00:00Z"
   },
   "topics": {
     "python-decorators": {
       "status": "in_progress",
       "started_at": "2026-06-02T10:00:00Z",
       "current_concept_index": 2,
-      "salmon_paid": true,
+      "cycles_paid": true,
       "concepts": [
         {
           "name": "closures",
@@ -161,7 +161,7 @@ Path for Python decorators (6 concepts):
 - `concept.status` — one of `pending` | `in_progress` | `acquired`
 - `concept.first_attempt` — one of `success` | `needed_hint` | `needed_reveal` | `null` (not yet attempted)
 - `concept.applications_distinct` — count of distinct contexts where the user applied this concept. A concept becomes `acquired` only when this hits 2 (Knowledge Space Theory rule — see D below).
-- `salmon_paid` — whether the user has paid the per-topic entry cost for this topic (1 salmon to start asking for help during this topic)
+- `cycles_paid` — whether the user has paid the per-topic entry cost for this topic (1 cycle to start asking for help during this topic)
 - `feedback_log` — appended per `/tutor-done` invocation
 
 **Why medium, not light or heavy:**
@@ -170,49 +170,49 @@ Path for Python decorators (6 concepts):
 
 **The two-application rule:** A concept is only marked `acquired` after the user successfully applies it in **two distinct contexts**, not after one right answer. From Knowledge Space Theory (Doignon-Falmagne / ALEKS). The `applications_distinct` counter tracks this. "Distinct" is determined by the LLM at the time of attempt — a re-run of the same exercise doesn't count; a new exercise using the same concept does.
 
-**Salmon reset:** `salmon_last_reset` tracks the last daily reset. The `UserPromptSubmit` hook checks this on each render and refills salmon if a day has passed since the last reset.
+**Cycles reset:** `cycles_last_reset` tracks the last daily reset. The `UserPromptSubmit` hook checks this on each render and refills cycles if a day has passed since the last reset.
 
 **Backed by:** Knowledge Space Theory (ALEKS, Doignon-Falmagne) for the two-application rule. Self-Determination Theory (Ryan & Deci) for the first-attempt-quality XP. Both in [catalog](../research/2026-06-02-llm-tutor-design-foundations.md).
 
 ---
 
-## D4 — Feedback collection: hybrid thumbs + targeted, with salmon rewards
+## D4 — Feedback collection: hybrid thumbs + targeted, with cycles rewards
 
-**Decision:** On `/tutor-done`, the tutor presents a two-step feedback flow with salmon rewards calibrated to discourage gaming.
+**Decision:** On `/tutor-done`, the tutor presents a two-step feedback flow with cycles rewards calibrated to discourage gaming.
 
 **Flow:**
 
 ```
 Step 1 — Thumbs (always asked)
 ─────────────────────────────────
-Topic complete! +180 XP. salmon=5
+Topic complete! +180 XP. cycles=5
 
 Did this session help you learn? 👍 / 👎
 
 → User taps one.
-→ +0.5 salmon either way (no incentive to lie either direction).
+→ +0.5 cycles either way (no incentive to lie either direction).
 
 Step 2 — Targeted question (optional, rotates)
 ───────────────────────────────────────────────
-👍 noted. +0.5 salmon for your feedback.
+👍 noted. +0.5 cycles for your feedback.
 
-One more if you want (+1 salmon for a substantive answer):
+One more if you want (+1 cycle for a substantive answer):
 [rotating question from bank — see D5]
 (Free text, or 'no' to skip.)
 
-→ Substantive answer = +1 salmon.
+→ Substantive answer = +1 cycle.
 → "no" / skip = no extra reward (no penalty).
 ```
 
 **"Substantive answer" guard:** answer string must be > 20 characters AND not literally match `n/a`, `no`, `nothing`, `idk`, `skip`. This prevents farming the +1 by typing "no" repeatedly. 20 chars is roughly one short sentence — enough to write something useful, not enough to type a trivial response.
 
-**Reward currency: salmon, not XP.**
-- Salmon is the *consumption* currency (refills daily, spent on tutor help).
+**Reward currency: cycles, not XP.**
+- Cycles is the *consumption* currency (refills daily, spent on tutor help).
 - XP is the *permanent* score (earned by topic completion).
 - Rewarding feedback with XP would corrupt the permanent score with engagement-farming.
-- Rewarding feedback with salmon means "users who help us tune the tutor get more tutor time" — incentives aligned with the project's mission.
+- Rewarding feedback with cycles means "users who help us tune the tutor get more tutor time" — incentives aligned with the project's mission.
 
-**Daily salmon cap:** 5 per day. Feedback rewards don't bypass the cap — they just help you hit it. A user completing one topic + giving full feedback in a day earns 0.5 + 1 + 0.5 (assuming topic completion also gives some salmon) but is still capped at 5 total. Prevents infinite farming.
+**Daily cycles cap:** 5 per day. Feedback rewards don't bypass the cap — they just help you hit it. A user completing one topic + giving full feedback in a day earns 0.5 + 1 + 0.5 (assuming topic completion also gives some cycles) but is still capped at 5 total. Prevents infinite farming.
 
 **Symmetry of 👍 / 👎:** Same +0.5 reward either way. Punishing 👎 with no reward would teach users to always thumb up, corrupting the satisfaction metric.
 
@@ -265,4 +265,4 @@ These decisions sit on top of `/tutor-start` and the `UserPromptSubmit` hook, bu
 2. **How the tutor *generates* the learning path on `/tutor-start` invocation.** D2 specifies the surface format but not the generation prompt. Will likely be: "Given topic X, list 5-8 prerequisite concepts in dependency order suitable for a 30-90 minute tutoring session."
 3. **What "two distinct applications" means in practice.** D3 mentions the rule; the tutor needs guidance on when to count an application as distinct vs. a repeat.
 4. **Codebase-grounding for `/tutor-codebase`.** D5's question bank works generically; for `/tutor-codebase` the questions might need to be adapted (e.g., "did I correctly identify which files matter, or did we go down a wrong path?").
-5. **Salmon refill amount and frequency.** D4 assumes daily refill to a cap of 5 but doesn't specify whether refill is +5/day or "refill to 5/day if below 5."
+5. **Cycles refill amount and frequency.** D4 assumes daily refill to a cap of 5 but doesn't specify whether refill is +5/day or "refill to 5/day if below 5."

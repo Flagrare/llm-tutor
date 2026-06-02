@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# llm-tutor UserPromptSubmit hook — daily salmon refill check.
+# llm-tutor UserPromptSubmit hook — daily cycles refill check.
 #
-# Fires before every user prompt. Idempotent — state.sh refill-salmon is a
+# Fires before every user prompt. Idempotent — state.sh refill-cycles is a
 # no-op when less than a day has passed since the last reset. Silent on
 # success (no stdout to avoid polluting the user prompt context).
 #
@@ -21,9 +21,9 @@ STATE_FILE="$STATE_DIR/state.json"
 # No state file = user hasn't started using the plugin yet. Skip silently.
 [ -f "$STATE_FILE" ] || exit 0
 
-# Call state.sh refill-salmon. Suppress all output; it's a no-op unless a day
+# Call state.sh refill-cycles. Suppress all output; it's a no-op unless a day
 # has passed, and we don't want it appearing in the user's prompt context
 # even when it does refill.
-"${CLAUDE_PLUGIN_ROOT}/scripts/state.sh" refill-salmon >/dev/null 2>&1 || true
+"${CLAUDE_PLUGIN_ROOT}/scripts/state.sh" refill-cycles >/dev/null 2>&1 || true
 
 exit 0

@@ -1,6 +1,6 @@
 ---
 name: tutor-start
-description: "Start a Socratic tutoring journey on any user-supplied topic. Generates a learning path of 5-8 prerequisite concepts, calibrates the user's knowledge via 3 graduated prompts, charges 1 baked salmon, and hands off to the active Echo/Cipher/Vex persona for the dialogue. Invoke with the subject as an argument (e.g. /tutor-start 'python decorators'), or with no argument to be asked. DOES auto-trigger on: 'tutor me on X', 'tutor me through X', 'start a tutoring session on X', '/tutor-start'. DOES NOT auto-trigger on colloquial 'teach me X' or 'explain X' — those usually mean the user wants a quick answer, not a 30-90 minute Socratic dialogue."
+description: "Start a Socratic tutoring journey on any user-supplied topic. Generates a learning path of 5-8 prerequisite concepts, calibrates the user's knowledge via 3 graduated prompts, charges 1 cycle, and hands off to the active Echo/Cipher/Vex persona for the dialogue. Invoke with the subject as an argument (e.g. /tutor-start 'python decorators'), or with no argument to be asked. DOES auto-trigger on: 'tutor me on X', 'tutor me through X', 'start a tutoring session on X', '/tutor-start'. DOES NOT auto-trigger on colloquial 'teach me X' or 'explain X' — those usually mean the user wants a quick answer, not a 30-90 minute Socratic dialogue."
 ---
 
 # Tutor Start
@@ -27,21 +27,21 @@ bash "$STATE" init
 
 This creates `state.json` if it doesn't exist; no-op if it does.
 
-### 0b. Refill salmon if a day has passed (defensive — hook should have done this)
+### 0b. Refill cycles if a day has passed (defensive — hook should have done this)
 
 ```bash
-bash "$STATE" refill-salmon
+bash "$STATE" refill-cycles
 ```
 
-### 0c. Read salmon balance
+### 0c. Read cycles balance
 
 ```bash
-SALMON=$(bash "$STATE" get .user.salmon)
+SALMON=$(bash "$STATE" get .user.cycles)
 ```
 
 If `$SALMON < 1`, stop here. Print the user-facing message verbatim:
 
-> "Out of salmon — they refill once per day. Run `/tutor-status` to see when next refill is due, or come back tomorrow. (Earning more salmon today is possible via feedback on completed topics, see `/tutor-done`.)"
+> "Out of cycles — they refill once per day. Run `/tutor-status` to see when next refill is due, or come back tomorrow. (Earning more cycles today is possible via feedback on completed topics, see `/tutor-done`.)"
 
 Exit the skill cleanly. Do NOT proceed to path generation.
 
@@ -76,13 +76,13 @@ EXISTING_STATUS=$(bash "$STATE" get ".topics[\"$SLUG\"].status // \"new\"")
 
 If `$EXISTING_STATUS` is `in_progress`, print:
 
-> "Resuming `$SLUG` (you've already paid the salmon for this topic). Picking up where we left off."
+> "Resuming `$SLUG` (you've already paid the cycles for this topic). Picking up where we left off."
 
-Then read `current_concept_index` and the concepts array, identify the current concept, and skip to **Step 5** (handoff). Do NOT proceed to path generation, salmon charging, or calibration.
+Then read `current_concept_index` and the concepts array, identify the current concept, and skip to **Step 5** (handoff). Do NOT proceed to path generation, cycles charging, or calibration.
 
 If `$EXISTING_STATUS` is `completed`, print:
 
-> "You marked this topic complete already. Feel free to chat about it freely (no salmon cost). If you want to revisit as a fresh topic, name it differently — e.g., 'python-decorators-revisit'."
+> "You marked this topic complete already. Feel free to chat about it freely (no cycles cost). If you want to revisit as a fresh topic, name it differently — e.g., 'python-decorators-revisit'."
 
 Exit cleanly.
 
@@ -147,19 +147,19 @@ bash "$STATE" set ".topics[\"$SLUG\"].concepts" "$CONCEPTS_JSON"
 
 ---
 
-## Step 2 — Charge salmon
+## Step 2 — Charge cycles
 
-Deduct 1 salmon, mark `salmon_paid` true:
+Deduct 1 cycle, mark `cycles_paid` true:
 
 ```bash
-bash "$STATE" add .user.salmon -1
-bash "$STATE" set ".topics[\"$SLUG\"].salmon_paid" true
-NEW_BAL=$(bash "$STATE" get .user.salmon)
+bash "$STATE" add .user.cycles -1
+bash "$STATE" set ".topics[\"$SLUG\"].cycles_paid" true
+NEW_BAL=$(bash "$STATE" get .user.cycles)
 ```
 
 Print the charge to the user briefly:
 
-> "Tutoring you on **$SUBJECT**. 🐟 Charged 1 salmon. Balance: $NEW_BAL remaining today."
+> "Tutoring you on **$SUBJECT**. ⚡ Charged 1 cycle. Balance: $NEW_BAL remaining today."
 
 Keep this terse — one line. The user wants to start, not read a receipt.
 
@@ -288,7 +288,7 @@ Your job as the skill is done. The user is now in a tutoring conversation with t
 The user can:
 - Continue the dialogue normally
 - Invoke `/tutor-path` to see the learning path
-- Invoke `/tutor-status` to see XP / salmon / progress
+- Invoke `/tutor-status` to see XP / cycles / progress
 - Invoke `/tutor-done` when they want to close the topic
 - Invoke `/tutor-start` again on the same topic to resume (no recharge)
 
@@ -296,10 +296,10 @@ The user can:
 
 ## Hard rules for this skill
 
-1. **One thing at a time.** Don't print the path AND the calibration question in the same turn. Don't charge salmon AND ask Round 1 in the same turn. Sequence matters.
+1. **One thing at a time.** Don't print the path AND the calibration question in the same turn. Don't charge cycles AND ask Round 1 in the same turn. Sequence matters.
 2. **Never reveal the canonical solution during calibration.** The Round 2 task may have a "right answer" — let the user try it; do not pre-empt with the solution.
 3. **Never write the full curriculum to the user up-front.** The DAG is internal control by design (per the locked-in design decision). Surface it ONLY on `/tutor-path`.
-4. **Charge salmon exactly once per topic.** The `salmon_paid` field is your guard — never deduct twice.
+4. **Charge cycles exactly once per topic.** The `cycles_paid` field is your guard — never deduct twice.
 5. **Refuse to start with broad subjects.** "Python" is too broad; push back once and require specificity.
 6. **No code blocks during calibration questions.** Inline references like `def add(a, b)` are fine; full snippets aren't until the user is writing code in response.
 7. **Don't lecture during calibration.** Calibration is *observing*. Lecturing pre-loads what you want them to know and corrupts the signal.
@@ -310,8 +310,8 @@ The user can:
 
 | Failure | Prevention |
 |---|---|
-| User pays salmon, gets bad path, gives up | Step 1 quality is critical. Generate concept names that are concrete and ordered correctly. If a concept name feels like jargon, reword it. |
+| User pays cycles, gets bad path, gives up | Step 1 quality is critical. Generate concept names that are concrete and ordered correctly. If a concept name feels like jargon, reword it. |
 | Calibration runs forever | Hard cap at Round 3. Even if the signal is ambiguous, classify and move on. The user can interrupt with "too easy"/"too hard" later. |
-| Resume vs new-topic ambiguity | Step 0f handles this explicitly. Always check existing status before charging salmon. |
-| Salmon=0 but user has rich XP and wants to spend it | NOT IMPLEMENTED in MVP. The cost is salmon; XP doesn't fall back. Future work — see decision doc D4's open items. |
+| Resume vs new-topic ambiguity | Step 0f handles this explicitly. Always check existing status before charging cycles. |
+| Cycles=0 but user has rich XP and wants to spend it | NOT IMPLEMENTED in MVP. The cost is cycles; XP doesn't fall back. Future work — see decision doc D4's open items. |
 | User says "too easy" but the skill keeps calibrating | Honor the interrupt immediately. Skip to Step 4 with the classification adjusted. |

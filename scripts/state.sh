@@ -12,16 +12,16 @@
 #   state.sh set <jq-path> <value>      Write any path (atomic). Value parsed as JSON.
 #   state.sh add <jq-path> <delta>      Add a number to a numeric path.
 #   state.sh maybe-init-topic <slug>    Create topic entry if missing.
-#   state.sh refill-salmon              Refill salmon to cap if a day has passed.
+#   state.sh refill-cycles              Refill cycles to cap if a day has passed.
 #
 # Examples:
 #   state.sh get .user.xp
 #   state.sh set .user.xp 1290
 #   state.sh add .user.xp 50
-#   state.sh add .user.salmon -1            # spend a salmon
+#   state.sh add .user.cycles -1            # spend a cycle
 #   state.sh set '.topics["python-decorators"].status' '"in_progress"'
 #   state.sh maybe-init-topic "python-decorators"
-#   state.sh refill-salmon
+#   state.sh refill-cycles
 #
 # Requires: jq, GNU date or BSD date.
 
@@ -49,9 +49,9 @@ seed_state_json() {
     schema_version: $v,
     user: {
       xp: 0,
-      salmon: 5,
-      salmon_cap: 5,
-      salmon_last_reset: $now
+      cycles: 5,
+      cycles_cap: 5,
+      cycles_last_reset: $now
     },
     topics: {}
   }'
@@ -106,7 +106,7 @@ cmd_set() {
 }
 
 # Subcommand: add <jq-path> <delta>
-# Delta can be negative (spend a salmon: add .user.salmon -1).
+# Delta can be negative (spend a cycle: add .user.cycles -1).
 cmd_add() {
   ensure_initialized
   local path="$1" delta="$2"
@@ -132,7 +132,7 @@ cmd_maybe_init_topic() {
     status: "in_progress",
     started_at: $now,
     current_concept_index: 0,
-    salmon_paid: false,
+    cycles_paid: false,
     calibration: null,
     concepts: [],
     feedback_log: []
@@ -140,14 +140,14 @@ cmd_maybe_init_topic() {
   write_state "$new"
 }
 
-# Subcommand: refill-salmon
-# If a day has passed since salmon_last_reset, refill salmon to salmon_cap.
+# Subcommand: refill-cycles
+# If a day has passed since cycles_last_reset, refill cycles to cycles_cap.
 # Uses epoch comparison for cross-platform safety.
-cmd_refill_salmon() {
+cmd_refill_cycles() {
   ensure_initialized
   local last_reset cap now_epoch last_epoch
-  last_reset=$(jq -r '.user.salmon_last_reset' "$STATE_FILE")
-  cap=$(jq -r '.user.salmon_cap' "$STATE_FILE")
+  last_reset=$(jq -r '.user.cycles_last_reset' "$STATE_FILE")
+  cap=$(jq -r '.user.cycles_cap' "$STATE_FILE")
   now_epoch=$(date -u +%s)
 
   # Parse ISO 8601 to epoch (BSD/GNU compatible attempt).
@@ -162,9 +162,9 @@ cmd_refill_salmon() {
     local now_iso_str
     now_iso_str=$(now_iso)
     local new
-    new=$(jq --argjson cap "$cap" --arg now "$now_iso_str" '.user.salmon = $cap | .user.salmon_last_reset = $now' "$STATE_FILE")
+    new=$(jq --argjson cap "$cap" --arg now "$now_iso_str" '.user.cycles = $cap | .user.cycles_last_reset = $now' "$STATE_FILE")
     write_state "$new"
-    echo "refilled: salmon=$cap last_reset=$now_iso_str"
+    echo "refilled: cycles=$cap last_reset=$now_iso_str"
   fi
 }
 
@@ -182,7 +182,7 @@ main() {
     set)               cmd_set "$@" ;;
     add)               cmd_add "$@" ;;
     maybe-init-topic)  cmd_maybe_init_topic "$@" ;;
-    refill-salmon)     cmd_refill_salmon "$@" ;;
+    refill-cycles)     cmd_refill_cycles "$@" ;;
     *)
       echo "unknown subcommand: $cmd" >&2
       echo "run \`$0\` (no args) for usage" >&2

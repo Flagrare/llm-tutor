@@ -1,13 +1,13 @@
 ---
 name: tutor-status
-description: "Show the llm-tutor dashboard — XP total, salmon balance with time-until-next-refill, active topics with progress, completed topics with XP earned, and lifetime stats. Invoke with no arguments. Triggers: '/tutor-status', 'show me my tutor status', 'how am I doing', 'check my XP', 'where am I at with the tutor'."
+description: "Show the llm-tutor dashboard — XP total, cycles balance with time-until-next-refill, active topics with progress, completed topics with XP earned, and lifetime stats. Invoke with no arguments. Triggers: '/tutor-status', 'show me my tutor status', 'how am I doing', 'check my XP', 'where am I at with the tutor'."
 ---
 
 # Tutor Status
 
-The dashboard reader for llm-tutor. Shows the user's current state at a glance — XP, salmon, what they're working on, what they've finished.
+The dashboard reader for llm-tutor. Shows the user's current state at a glance — XP, cycles, what they're working on, what they've finished.
 
-This skill is read-only — it doesn't modify state, doesn't charge salmon, doesn't reward feedback. It just queries `state.json` and renders a formatted overview.
+This skill is read-only — it doesn't modify state, doesn't charge cycles, doesn't reward feedback. It just queries `state.json` and renders a formatted overview.
 
 ---
 
@@ -19,9 +19,9 @@ STATE="$CLAUDE_PLUGIN_ROOT/scripts/state.sh"
 # Ensure state file exists (idempotent — no-op if already initialized)
 bash "$STATE" init >/dev/null
 
-# Refill salmon if daily reset is due (defensive — the hook should have
+# Refill cycles if daily reset is due (defensive — the hook should have
 # done this, but doesn't hurt to be sure on a status query)
-bash "$STATE" refill-salmon >/dev/null 2>&1 || true
+bash "$STATE" refill-cycles >/dev/null 2>&1 || true
 ```
 
 ---
@@ -30,9 +30,9 @@ bash "$STATE" refill-salmon >/dev/null 2>&1 || true
 
 ```bash
 XP=$(bash "$STATE" get .user.xp)
-SALMON=$(bash "$STATE" get .user.salmon)
-SALMON_CAP=$(bash "$STATE" get .user.salmon_cap)
-LAST_RESET=$(bash "$STATE" get .user.salmon_last_reset)
+SALMON=$(bash "$STATE" get .user.cycles)
+SALMON_CAP=$(bash "$STATE" get .user.cycles_cap)
+LAST_RESET=$(bash "$STATE" get .user.cycles_last_reset)
 
 # Topic counts
 TOPICS_JSON=$(bash "$STATE" get .topics)
@@ -45,9 +45,9 @@ COMPLETED_COUNT=$(echo "$COMPLETED_TOPICS" | jq 'length')
 
 ---
 
-## Step 2 — Compute time until next salmon refill
+## Step 2 — Compute time until next cycles refill
 
-The salmon hook refills 24 hours after `salmon_last_reset`. Compute the remaining time.
+The cycles hook refills 24 hours after `cycles_last_reset`. Compute the remaining time.
 
 ```bash
 NOW_EPOCH=$(date -u +%s)
@@ -83,7 +83,7 @@ The output structure:
 llm-tutor status
 
 XP:     $XP
-Salmon: $SALMON / $SALMON_CAP     ($REFILL_TEXT)
+Cycles: $SALMON / $SALMON_CAP     ($REFILL_TEXT)
 
 Active topics ($ACTIVE_COUNT):
   → slug-1                  progress: N/M concepts acquired
@@ -100,7 +100,7 @@ Completed topics ($COMPLETED_COUNT):
 echo "llm-tutor status"
 echo
 printf "XP:     %s\n" "$XP"
-printf "Salmon: %s / %s     (%s)\n" "$SALMON" "$SALMON_CAP" "$REFILL_TEXT"
+printf "Cycles: %s / %s     (%s)\n" "$SALMON" "$SALMON_CAP" "$REFILL_TEXT"
 echo
 ```
 
@@ -179,18 +179,18 @@ fi
 
 ## Hard rules
 
-1. **Read-only.** This skill never modifies state. The defensive `init` and `refill-salmon` calls in Step 0 are state.sh's responsibility — they're idempotent and write only when truly required.
+1. **Read-only.** This skill never modifies state. The defensive `init` and `refill-cycles` calls in Step 0 are state.sh's responsibility — they're idempotent and write only when truly required.
 2. **No persona voice.** Render the dashboard, don't editorialize. Don't say "Nice progress!" or "Keep it up!" — that's not what a status command does.
 3. **Truncate ISO dates to date-only for display.** `2026-05-28T14:30:00Z` → `2026-05-28`. Time-of-day clutters the table.
 4. **Preserve column alignment.** Use `%-30s` style padding so slugs line up; otherwise the dashboard reads as ragged.
-5. **Show the salmon refill ETA always.** Even when salmon is at cap. The user might want to know "the cap is already at 5, so I have 5 to spend right now, and the next reset is in Xh."
+5. **Show the cycles refill ETA always.** Even when cycles is at cap. The user might want to know "the cap is already at 5, so I have 5 to spend right now, and the next reset is in Xh."
 
 ---
 
 ## Edge cases
 
-- **No state file at all** (user has never invoked any /tutor-* command) → Step 0's `init` creates an empty one. Status shows XP=0, salmon=5/5, no topics. That's fine.
-- **`salmon_last_reset` malformed** → `LAST_EPOCH` defaults to 0, `REMAINING` becomes huge negative, "due now" displays. Acceptable degradation.
+- **No state file at all** (user has never invoked any /tutor-* command) → Step 0's `init` creates an empty one. Status shows XP=0, cycles=5/5, no topics. That's fine.
+- **`cycles_last_reset` malformed** → `LAST_EPOCH` defaults to 0, `REMAINING` becomes huge negative, "due now" displays. Acceptable degradation.
 - **A topic exists but its `concepts` array is empty** (failed `/tutor-start`) → `progress: 0/0 concepts acquired` displays. Not pretty but honest. User can re-run `/tutor-start` to repair.
 - **A completed topic missing `xp_earned_total`** (pre-this-version state) → `// 0` fallback shows `+0 XP`. Mildly weird but not broken.
 - **A completed topic missing `completed_at`** → `?` shows. Acceptable.

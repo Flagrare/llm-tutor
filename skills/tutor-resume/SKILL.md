@@ -7,7 +7,7 @@ description: "Pick up a paused tutoring session. Finds the user's active in-prog
 
 The "pick up where you left off" skill. After a break — minutes, hours, or days — the user invokes this to be re-oriented into their active topic without having to remember the slug or re-invoke `/tutor-start`.
 
-This skill is read-mostly: it queries state to find the active topic, prints an orientation message, and hands off to the persona. It does NOT charge salmon (the user already paid when they originally invoked `/tutor-start` on this topic; resume is free).
+This skill is read-mostly: it queries state to find the active topic, prints an orientation message, and hands off to the persona. It does NOT charge cycles (the user already paid when they originally invoked `/tutor-start` on this topic; resume is free).
 
 ---
 
@@ -16,7 +16,7 @@ This skill is read-mostly: it queries state to find the active topic, prints an 
 ```bash
 STATE="$CLAUDE_PLUGIN_ROOT/scripts/state.sh"
 bash "$STATE" init >/dev/null
-bash "$STATE" refill-salmon >/dev/null 2>&1 || true
+bash "$STATE" refill-cycles >/dev/null 2>&1 || true
 ```
 
 ---
@@ -144,7 +144,7 @@ The skill ends here. The persona takes over.
 
 ## Hard rules
 
-1. **No salmon charge.** Resume is free; the user already paid when they first invoked `/tutor-start` on this topic. The `salmon_paid: true` flag in state is the receipt.
+1. **No cycles charge.** Resume is free; the user already paid when they first invoked `/tutor-start` on this topic. The `cycles_paid: true` flag in state is the receipt.
 2. **Don't re-do calibration.** The user calibrated when they started the topic. Resume picks up where they left off; it doesn't re-test.
 3. **No path printing.** The orientation message doesn't render the full learning path. The user can invoke `/tutor-path` if they want that.
 4. **Brief orientation.** 3-4 lines, then hand off. Long orientations break the resume feel — the user wants to continue working, not read a status report.
