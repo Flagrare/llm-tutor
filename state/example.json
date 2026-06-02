@@ -16,36 +16,42 @@
       "concepts": [
         {
           "name": "closures",
+          "depends_on": [],
           "status": "acquired",
           "first_attempt": "success",
           "applications_distinct": 2
         },
         {
           "name": "first-class functions",
+          "depends_on": [],
           "status": "acquired",
           "first_attempt": "success",
           "applications_distinct": 2
         },
         {
           "name": "wrapper functions",
+          "depends_on": [1, 2],
           "status": "in_progress",
           "first_attempt": "needed_hint",
           "applications_distinct": 1
         },
         {
           "name": "@ syntax",
+          "depends_on": [3],
           "status": "pending",
           "first_attempt": null,
           "applications_distinct": 0
         },
         {
           "name": "decorators with arguments",
+          "depends_on": [3, 4],
           "status": "pending",
           "first_attempt": null,
           "applications_distinct": 0
         },
         {
           "name": "real-world patterns",
+          "depends_on": [4, 5],
           "status": "pending",
           "first_attempt": null,
           "applications_distinct": 0
@@ -63,30 +69,35 @@
       "concepts": [
         {
           "name": "render props",
+          "depends_on": [],
           "status": "acquired",
           "first_attempt": "success",
           "applications_distinct": 2
         },
         {
           "name": "data fetching patterns",
+          "depends_on": [],
           "status": "acquired",
           "first_attempt": "needed_hint",
           "applications_distinct": 2
         },
         {
           "name": "Suspense boundary",
+          "depends_on": [2],
           "status": "acquired",
           "first_attempt": "needed_hint",
           "applications_distinct": 2
         },
         {
           "name": "ErrorBoundary",
+          "depends_on": [3],
           "status": "acquired",
           "first_attempt": "needed_reveal",
           "applications_distinct": 2
         },
         {
           "name": "real-world composition",
+          "depends_on": [3, 4],
           "status": "acquired",
           "first_attempt": "success",
           "applications_distinct": 2

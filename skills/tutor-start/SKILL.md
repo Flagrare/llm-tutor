@@ -107,21 +107,40 @@ For each concept, identify which earlier concepts it depends on (by 1-based inde
 
 For each concept, append an entry to the topic's `concepts` array. Use `state.sh maybe-init-topic` to create the topic entry (idempotent), then `state.sh set` to populate the concepts array.
 
-```bash
-bash "$STATE" maybe-init-topic "$SLUG"
+Each concept entry has the shape:
 
-# Then populate the concepts array (use a single jq write for atomicity if generating many at once).
-# Each concept gets: { name, status: "pending", first_attempt: null, applications_distinct: 0 }
-# Dependencies live in your internal representation; they're not part of the state schema
-# (they're regenerable from the concept order — earlier indices are dependencies of later ones).
+```json
+{
+  "name": "closures",
+  "depends_on": [],
+  "status": "pending",
+  "first_attempt": null,
+  "applications_distinct": 0
+}
 ```
 
-You'll typically build the JSON array in a single `jq -n` call and write the whole `concepts` array atomically:
+The `depends_on` field is an array of **1-based indices** into the same `concepts` array — which earlier concepts must be understood before this one makes sense. Examples:
+
+- Concept 1 ("closures") might have `depends_on: []` — it's a foundational concept with no prerequisites in this topic.
+- Concept 3 ("wrapper functions") might have `depends_on: [1, 2]` — needs both prior concepts.
+- Concept 6 ("real-world patterns") might have `depends_on: [4, 5]` — needs the two preceding, which transitively bring in everything else.
+
+Be honest with the dependency lists. Don't lazy-write `[1, 2, …, N-1]` for everything — that defeats the point. Write only the *direct* dependencies. If concept 6 needs 4 and 5 (which in turn need 3, which needs 1+2), the chain captures everything transitively; you don't need to repeat 1, 2, 3 in concept 6's list.
+
+```bash
+bash "$STATE" maybe-init-topic "$SLUG"
+```
+
+Then populate the concepts array atomically (single jq write for the whole array):
 
 ```bash
 CONCEPTS_JSON=$(jq -nc '[
-  { "name": "closures", "status": "pending", "first_attempt": null, "applications_distinct": 0 },
-  { "name": "first-class functions", "status": "pending", "first_attempt": null, "applications_distinct": 0 }
+  { "name": "closures",                  "depends_on": [],     "status": "pending", "first_attempt": null, "applications_distinct": 0 },
+  { "name": "first-class functions",     "depends_on": [],     "status": "pending", "first_attempt": null, "applications_distinct": 0 },
+  { "name": "wrapper functions",         "depends_on": [1, 2], "status": "pending", "first_attempt": null, "applications_distinct": 0 },
+  { "name": "@ syntax",                  "depends_on": [3],    "status": "pending", "first_attempt": null, "applications_distinct": 0 },
+  { "name": "decorators with arguments", "depends_on": [3, 4], "status": "pending", "first_attempt": null, "applications_distinct": 0 },
+  { "name": "real-world patterns",       "depends_on": [4, 5], "status": "pending", "first_attempt": null, "applications_distinct": 0 }
 ]')
 bash "$STATE" set ".topics[\"$SLUG\"].concepts" "$CONCEPTS_JSON"
 ```
