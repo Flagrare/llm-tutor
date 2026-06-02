@@ -91,6 +91,7 @@ Tier is **cosmetic only** — it's a title showing your trajectory, not a functi
 - [x] `/tutor-status` skill — dashboard: XP, cycles balance + refill ETA, active topics with progress, completed topics with XP earned, lifetime stats
 - [x] `/tutor-resume` skill — pick up a paused topic with a brief orientation (current concept, acquired so far, upcoming) and hand off to the persona
 - [x] `/tutor-codebase <path>` skill — codebase-grounded tutoring with file-anchored concepts (the distinctive value vs commercial LLM tutors)
+- [x] `/tutor-project` skill — convenience wrapper for `/tutor-codebase .`; tutor on the current working directory
 - [ ] `/tutor-project` skill — tutor on current work
 - [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
 - [ ] `UserPromptSubmit` hook for cycles/XP accounting
