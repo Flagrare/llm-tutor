@@ -257,6 +257,45 @@ Defer to v0.2; the round-robin is fine for MVP.
 
 ---
 
+## D6 — Currency name "cycles" and the 10-tier level system
+
+This decision was added after the initial D1–D5 lock-in. It covers (a) the currency name and (b) the level/tier scheme.
+
+### D6a — Currency name: "cycles"
+
+The original Boots-inspired name "salmon" inherited boot.dev's playful "feed the AI a fish" framing. That doesn't fit the project's cyberpunk-leaning personas (Echo, Cipher, Vex). The currency is renamed to **cycles** — a computational metaphor where the user is paying for the tutor's attention/processing time. The unit reads cleanly fractional ("+0.5 cycles", "4.5 cycles remaining"), fits all three persona voices, and avoids semantic noise (unlike "stims" which carries drug-coded connotations some users dislike, or "tells" which has poker-specific meaning).
+
+All schema fields renamed: `salmon` → `cycles`, `salmon_cap` → `cycles_cap`, `salmon_last_reset` → `cycles_last_reset`, `salmon_paid` → `cycles_paid`. Hook script renamed: `refill-salmon.sh` → `refill-cycles.sh`. User-facing emoji: 🐟 → ⚡.
+
+The research catalog (`docs/research/`) retains "salmon" where it appears in references to boot.dev's original term — those are historical references to the source material, not project-internal usage.
+
+### D6b — 10-tier level system (cosmetic only)
+
+XP accumulates into named tiers that tell the story of *becoming less dependent on the tutor*. Tiers are **cosmetic only** — no functional unlocks, no reward scaling, no easier tutor at higher levels. This is deliberate per the anti-dependency philosophy: leveling means status, not power.
+
+| Tier | Name | XP threshold | Phase | Signals |
+|---|---|---|---|---|
+| 1 | Greenhorn | 0 | Arrive | just arrived, fully reliant |
+| 2 | Booted | 75 | Arrive | first concepts in place |
+| 3 | Patched | 200 | Build | basic plumbing done |
+| 4 | Linked | 400 | Build | concepts connecting in your mind |
+| 5 | Wired | 650 | Build | concepts hold under pressure |
+| 6 | Threaded | 950 | Synthesize | starting to weave patterns yourself |
+| 7 | Synced | 1300 | Synthesize | working as peer with the tutor |
+| 8 | Forking | 1800 | Separate | diverging from suggested paths |
+| 9 | Decoupled | 2500 | Separate | sustained sessions without tutor |
+| 10 | Self-Hosting | 3500 | Separate | terminal — tutor is optional |
+
+The three-act arc (Arrive → Build → Synthesize → Separate) culminates in tiers explicitly named for the project's mission. "Self-Hosting" as terminal title is the design victory.
+
+**Threshold curve rationale:** small early gaps (frequent progression markers when motivation matters most for habit-building), longer late gaps (so Self-Hosting feels genuinely earned). At ~150 XP per topic, a typical engaged user reaches Booted after 1 topic, Wired after 4-5 topics, Synced after 8-9 topics, Self-Hosting after ~23 topics. That's a 3-6 month arc for someone doing 1-2 topics per week.
+
+**Implementation:** Single source of truth at `scripts/tier.sh` with subcommands `name`, `index`, `all`, `next`, `table`. Both `/tutor-status` (shows current tier + XP-to-next) and `/tutor-done` (shows tier-up notification when a topic completion crosses a threshold) call into this script — no duplication of the tier table.
+
+**Backed by:** Anti-dependency philosophy from [`docs/research/`](../research/2026-06-02-llm-tutor-design-foundations.md). Self-Determination Theory says rewards work as competence feedback when they signal *progress toward autonomy*, not when they unlock material benefits. Cosmetic tiers with anti-dependency naming honor both that finding and the project's mission.
+
+---
+
 ## What's still open
 
 These decisions sit on top of `/tutor-start` and the `UserPromptSubmit` hook, but those skills are not yet written. Specifically:

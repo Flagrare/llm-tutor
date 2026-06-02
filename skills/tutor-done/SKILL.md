@@ -113,19 +113,40 @@ XP_EARNED=$(jq -n --argjson c "$CONCEPTS" '
 ')
 ```
 
-### 1b. Persist
+### 1b. Persist (and check for tier-up)
+
+Capture the tier *before* the XP gain, then apply the gain, then check the tier *after*. If the tier index increased, surface a tier-up notification in Step 1c.
 
 ```bash
+TIER="$CLAUDE_PLUGIN_ROOT/scripts/tier.sh"
+
+# Tier before applying the XP gain
+PREV_XP=$(bash "$STATE" get .user.xp)
+TIER_BEFORE=$(bash "$TIER" index "$PREV_XP")
+
+# Apply XP + mark topic complete
 NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 bash "$STATE" add .user.xp "$XP_EARNED"
 bash "$STATE" set ".topics[\"$SLUG\"].xp_earned_total" "$XP_EARNED"
 bash "$STATE" set ".topics[\"$SLUG\"].status" '"completed"'
 bash "$STATE" set ".topics[\"$SLUG\"].completed_at" "\"$NOW\""
+
+# Tier after
+NEW_XP=$(bash "$STATE" get .user.xp)
+TIER_AFTER=$(bash "$TIER" index "$NEW_XP")
+TIER_NAME_AFTER=$(bash "$TIER" name "$NEW_XP")
+
+# Did the user level up? Could be by 1 or more tiers depending on XP gain.
+TIER_UP="no"
+if [ "$TIER_AFTER" -gt "$TIER_BEFORE" ]; then
+  TIER_UP="yes"
+  TIER_NAME_BEFORE=$(bash "$TIER" name "$PREV_XP")
+fi
 ```
 
-### 1c. Print breakdown
+### 1c. Print breakdown (with optional tier-up)
 
-Show the breakdown table + total to the user. Include the XP delta on `user.xp`:
+Show the breakdown table + total to the user. Include the XP delta on `user.xp`. If `TIER_UP="yes"`, print the tier-up line *after* the XP delta:
 
 ```
 Topic complete: $SLUG
@@ -136,7 +157,14 @@ XP earned breakdown:
                         $XP_EARNED XP
 
 XP: $PREV_XP → $NEW_XP (+$XP_EARNED)
+
+[only if TIER_UP="yes"]:
+*** Tier up: $TIER_NAME_BEFORE → $TIER_NAME_AFTER ***
 ```
+
+The tier-up line is the only place gamification leaks into the closing summary. Keep it understated — three asterisks, one line. Don't editorialize ("Awesome!" etc.) — the achievement speaks for itself, and per-persona voice happens during dialogue, not in the state-reader output.
+
+If the topic's XP gain crossed two tiers in one step (unusual but possible), the line still reads as a single transition from the entry tier name to the exit tier name — don't list intermediate tiers.
 
 Don't print cycles yet — that comes after the feedback flow.
 
@@ -162,13 +190,13 @@ Award +0.5 cycles either way. Reward is symmetric so users can't game by always 
 ```bash
 CUR=$(bash "$STATE" get .user.cycles)
 CAP=$(bash "$STATE" get .user.cycles_cap)
-NEW_SALMON=$(jq -n --argjson cur "$CUR" --argjson cap "$CAP" '[$cur + 0.5, $cap] | min')
-bash "$STATE" set .user.cycles "$NEW_SALMON"
+NEW_CYCLES=$(jq -n --argjson cur "$CUR" --argjson cap "$CAP" '[$cur + 0.5, $cap] | min')
+bash "$STATE" set .user.cycles "$NEW_CYCLES"
 ```
 
 Print the receipt one line:
 
-> "👍 noted (or 👎 noted). +0.5 cycles. balance=$NEW_SALMON"
+> "👍 noted (or 👎 noted). +0.5 cycles. balance=$NEW_CYCLES"
 
 ---
 
@@ -220,8 +248,8 @@ If substantive: award +1 cycle (cap-respecting):
 ```bash
 CUR=$(bash "$STATE" get .user.cycles)
 CAP=$(bash "$STATE" get .user.cycles_cap)
-NEW_SALMON=$(jq -n --argjson cur "$CUR" --argjson cap "$CAP" '[$cur + 1.0, $cap] | min')
-bash "$STATE" set .user.cycles "$NEW_SALMON"
+NEW_CYCLES=$(jq -n --argjson cur "$CUR" --argjson cap "$CAP" '[$cur + 1.0, $cap] | min')
+bash "$STATE" set .user.cycles "$NEW_CYCLES"
 ```
 
 If not substantive (skipped/short): no extra reward. Don't punish, don't lecture.
@@ -255,7 +283,7 @@ Print the closing summary. Keep it short.
 Done. $SLUG is in your completed log.
 
 XP earned: $XP_EARNED  (total: $NEW_XP)
-Cycles: $NEW_SALMON / $CAP
+Cycles: $NEW_CYCLES / $CAP
 
 You're free to chat about this material at no cycles cost from here on. 
 Start something new with /tutor-start, or see /tutor-status for the overview.

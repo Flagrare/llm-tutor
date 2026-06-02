@@ -56,6 +56,27 @@ When you've got cycles, asking the tutor for help during a topic costs 1 cycle. 
 
 The friction is the point: it makes you genuinely consider "do I need help, or have I just not tried hard enough?" — without forbidding help when you actually need it.
 
+## The 10 tiers
+
+XP accumulates into named tiers that tell the story of *becoming less dependent on the tutor*. The terminal tier ("Self-Hosting") explicitly names the design victory.
+
+| Tier | Name | XP threshold | Phase |
+|---|---|---|---|
+| 1 | Greenhorn | 0 | Arrive |
+| 2 | Booted | 75 | Arrive |
+| 3 | Patched | 200 | Build |
+| 4 | Linked | 400 | Build |
+| 5 | Wired | 650 | Build |
+| 6 | Threaded | 950 | Synthesize |
+| 7 | Synced | 1300 | Synthesize |
+| 8 | Forking | 1800 | Separate |
+| 9 | Decoupled | 2500 | Separate |
+| 10 | Self-Hosting | 3500 | Separate |
+
+Tier is **cosmetic only** — it's a title showing your trajectory, not a functional unlock. The tutor never gets easier as you level up; the cycles cap stays at 5/day regardless of tier; rewards don't scale. This is deliberate: the anti-dependency philosophy means leveling should mean *status*, not *power*. The win is leaving the tutor, not deepening reliance on it.
+
+`/tutor-status` shows your current tier and the XP needed for the next one. `/tutor-done` prints a tier-up notification when a topic completion crosses a threshold.
+
 ## Status
 
 **Pre-alpha.** Currently shipping:

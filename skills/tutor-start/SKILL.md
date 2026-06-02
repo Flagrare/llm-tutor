@@ -36,10 +36,10 @@ bash "$STATE" refill-cycles
 ### 0c. Read cycles balance
 
 ```bash
-SALMON=$(bash "$STATE" get .user.cycles)
+CYCLES=$(bash "$STATE" get .user.cycles)
 ```
 
-If `$SALMON < 1`, stop here. Print the user-facing message verbatim:
+If `$CYCLES < 1`, stop here. Print the user-facing message verbatim:
 
 > "Out of cycles — they refill once per day. Run `/tutor-status` to see when next refill is due, or come back tomorrow. (Earning more cycles today is possible via feedback on completed topics, see `/tutor-done`.)"
 

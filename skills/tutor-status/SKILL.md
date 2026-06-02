@@ -30,9 +30,16 @@ bash "$STATE" refill-cycles >/dev/null 2>&1 || true
 
 ```bash
 XP=$(bash "$STATE" get .user.xp)
-SALMON=$(bash "$STATE" get .user.cycles)
-SALMON_CAP=$(bash "$STATE" get .user.cycles_cap)
+CYCLES=$(bash "$STATE" get .user.cycles)
+CYCLES_CAP=$(bash "$STATE" get .user.cycles_cap)
 LAST_RESET=$(bash "$STATE" get .user.cycles_last_reset)
+
+# Current tier + progress toward next tier
+TIER="$CLAUDE_PLUGIN_ROOT/scripts/tier.sh"
+TIER_NAME=$(bash "$TIER" name "$XP")
+TIER_INDEX=$(bash "$TIER" index "$XP")
+NEXT=$(bash "$TIER" next "$XP")
+# NEXT is either "max" or "<name>|<xp_needed>"
 
 # Topic counts
 TOPICS_JSON=$(bash "$STATE" get .topics)
@@ -83,7 +90,7 @@ The output structure:
 llm-tutor status
 
 XP:     $XP
-Cycles: $SALMON / $SALMON_CAP     ($REFILL_TEXT)
+Cycles: $CYCLES / $CYCLES_CAP     ($REFILL_TEXT)
 
 Active topics ($ACTIVE_COUNT):
   → slug-1                  progress: N/M concepts acquired
@@ -99,8 +106,17 @@ Completed topics ($COMPLETED_COUNT):
 ```bash
 echo "llm-tutor status"
 echo
+
+# Tier line: "Tier 6: Threaded   (350 XP to Synced)" or "Tier 10: Self-Hosting   (max)"
+if [ "$NEXT" = "max" ]; then
+  printf "Tier %s: %s     (max)\n" "$TIER_INDEX" "$TIER_NAME"
+else
+  NEXT_NAME=$(echo "$NEXT" | cut -d'|' -f1)
+  NEXT_NEEDED=$(echo "$NEXT" | cut -d'|' -f2)
+  printf "Tier %s: %s     (%s XP to %s)\n" "$TIER_INDEX" "$TIER_NAME" "$NEXT_NEEDED" "$NEXT_NAME"
+fi
 printf "XP:     %s\n" "$XP"
-printf "Cycles: %s / %s     (%s)\n" "$SALMON" "$SALMON_CAP" "$REFILL_TEXT"
+printf "Cycles: %s / %s     (%s)\n" "$CYCLES" "$CYCLES_CAP" "$REFILL_TEXT"
 echo
 ```
 
