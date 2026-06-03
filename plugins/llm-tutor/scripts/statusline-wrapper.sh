@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# statusline-wrapper.sh — llm-tutor's statusline integration entry point.
+#
+# When the user runs /tutor-statusline-install, ~/.claude/settings.json's
+# statusLine.command is swapped to point at this script, and the previous
+# command (if any) is saved to ~/.claude/llm-tutor/wrapped-statusline.json.
+#
+# Each render, this wrapper:
+#   1. Reads the status JSON from stdin (sent by Claude Code).
+#   2. Pipes that JSON to the saved original command and captures its stdout.
+#   3. Optionally appends llm-tutor's segment as an additional row.
+#
+# The append is gated by a flag file (~/.claude/llm-tutor/statusline-enabled).
+# When the flag is missing, the wrapper passes the original output through
+# unchanged — same effect as if llm-tutor weren't involved at all.
+#
+# Performance: this runs on every statusline refresh. Both the original
+# command and our segment renderer must complete in milliseconds. The
+# segment renderer is one jq call + a tier lookup; the original cost is
+# whatever the original statusline already cost.
+#
+# Failure modes are silent: if the original command is missing/unset/broken
+# or the segment renderer errors, the wrapper still emits *something* so
+# the user's statusline isn't blank. Statusline rendering is not a place
+# to fail loudly.
+
+set -u
+
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/llm-tutor}"
+WRAPPED_FILE="$STATE_DIR/wrapped-statusline.json"
+ENABLED_FLAG="$STATE_DIR/statusline-enabled"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SEGMENT_SH="$SCRIPT_DIR/statusline-segment.sh"
+
+# Read stdin once; we may need to feed it to the original command.
+stdin_buf=$(cat)
+
+# --- run the wrapped original command (if any) ---
+original_output=""
+if [ -f "$WRAPPED_FILE" ] && command -v jq >/dev/null 2>&1; then
+  original_cmd=$(jq -r '.command // empty' "$WRAPPED_FILE" 2>/dev/null)
+  if [ -n "$original_cmd" ]; then
+    # Re-feed the same stdin. The original command sees exactly what
+    # Claude Code sent — it doesn't know it's being wrapped.
+    original_output=$(printf "%s" "$stdin_buf" | bash -c "$original_cmd" 2>/dev/null || printf "")
+  fi
+fi
+
+# --- decide whether to append our segment ---
+append_segment=true
+[ -f "$ENABLED_FLAG" ] || append_segment=false
+
+segment=""
+if $append_segment && [ -x "$SEGMENT_SH" ]; then
+  segment=$(bash "$SEGMENT_SH" 2>/dev/null || printf "")
+fi
+
+# --- combine ---
+# When there's no original, emit just our segment (degrades to a
+# llm-tutor-only statusline). When there's no segment, emit the original
+# unchanged. When both are present, place our segment on a new row beneath
+# the original so it never collides with the original layout regardless
+# of how many rows the original uses.
+if [ -n "$original_output" ] && [ -n "$segment" ]; then
+  printf "%s\n%s" "$original_output" "$segment"
+elif [ -n "$original_output" ]; then
+  printf "%s" "$original_output"
+elif [ -n "$segment" ]; then
+  printf "%s" "$segment"
+fi

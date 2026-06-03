@@ -19,12 +19,15 @@ This isn't just a stance — it's empirically backed. A 2025 PNAS study found Ch
 The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the path.
 
 ```
-/tutor-start <subject>      "teach me Python decorators"
-/tutor-codebase <path>      "tutor me through how auth works in this repo"
-/tutor-project              "tutor me on what I'm currently working on"
-/tutor-resume               pick up where you left off
-/tutor-status               show what's open, XP, cycles
-/tutor-done                 mark current topic as understood; claim XP
+/tutor-start <subject>          "teach me Python decorators"
+/tutor-codebase <path>          "tutor me through how auth works in this repo"
+/tutor-project                  "tutor me on what I'm currently working on"
+/tutor-resume                   pick up where you left off
+/tutor-status                   show what's open, XP, cycles
+/tutor-done                     mark current topic as understood; claim XP
+/tutor-statusline-install       inject XP/cycles/topic into your statusline
+/tutor-statusline-toggle        flip the statusline segment on/off
+/tutor-statusline-uninstall     restore your original statusline
 ```
 
 The same teacher works for all of it — your codebase, a new framework, a CS concept you've been meaning to grok, a piece of work you're stuck on. The teacher's identity is stable; what they're teaching shifts to whatever you brought them.
@@ -92,10 +95,7 @@ Tier is **cosmetic only** — it's a title showing your trajectory, not a functi
 - [x] `/tutor-resume` skill — pick up a paused topic with a brief orientation (current concept, acquired so far, upcoming) and hand off to the persona
 - [x] `/tutor-codebase <path>` skill — codebase-grounded tutoring with file-anchored concepts (the distinctive value vs commercial LLM tutors)
 - [x] `/tutor-project` skill — convenience wrapper for `/tutor-codebase .`; tutor on the current working directory
-- [ ] `/tutor-project` skill — tutor on current work
-- [ ] `/tutor-resume`, `/tutor-status`, `/tutor-done` commands
-- [ ] `UserPromptSubmit` hook for cycles/XP accounting
-- [ ] Statusline segment for [claude-statusline](https://github.com/Flagrare/claude-statusline) showing XP / cycles / current topic
+- [x] Statusline integration — wrapper-based, works with any Claude Code statusline (claude-statusline, custom, none). Three commands: `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-uninstall`. Shows tier, cycles, active topic + concept progress as an extra row beneath whatever statusline you already have.
 - [ ] Plugin marketplace publishing
 
 ## Design constraint: no plugin dependencies
@@ -125,9 +125,70 @@ llm-tutor is a single-plugin marketplace. From Claude Code:
 /reload-plugins
 ```
 
-After the reload, the seven `/tutor-*` commands are available (`/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume`), the three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
+After the reload, ten `/tutor-*` commands are available (the seven core ones — `/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume` — plus three statusline ones — `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-uninstall`). The three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
 
 To pick a teacher: `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. Then `/tutor-start <subject>` or `/tutor-project` to begin.
+
+## Statusline integration
+
+llm-tutor can render your tier, cycles balance, and active topic + progress directly in your Claude Code statusline. It works alongside **whatever statusline you're already using** — claude-statusline, a custom shell script, or none at all. You don't need to install or modify any other plugin.
+
+### Install
+
+```
+/tutor-statusline-install
+```
+
+This saves your current `~/.claude/settings.json` `statusLine.command` (whatever it is) to `~/.claude/llm-tutor/wrapped-statusline.json` and swaps in a thin wrapper. Each render, the wrapper:
+
+1. Pipes Claude Code's status JSON to your original command and captures its stdout (so your existing statusline still renders).
+2. Appends llm-tutor's segment as an additional row.
+
+A typical result with claude-statusline below — two original rows on top, llm-tutor's row appended:
+
+```
+claude-opus-4-7  │  🧠  high              📂 my-repo  🌿 main ~+ ↑2  │  ctx: [████░░░░░░] 38%
+                                                       5h:42% 🔥 [1h20m]  │  7d:8% 🍃 [3d4h]  │  $1.23
+Booted ⚡4/5 python-decorators 2/5
+```
+
+### Toggle
+
+To hide the segment without uninstalling:
+
+```
+/tutor-statusline-toggle off    # wrapper still runs, segment hidden
+/tutor-statusline-toggle on     # segment back
+/tutor-statusline-toggle        # cycle between
+```
+
+When off, the wrapper passes the original statusline through unchanged. Useful for screen-sharing.
+
+### Uninstall
+
+```
+/tutor-statusline-uninstall
+```
+
+Restores your original `statusLine.command` byte-for-byte. Your tutoring progress (XP, cycles, topics) stays intact — only the wrapper plumbing is removed. If you reinstall later, the saved-original is still there to wrap.
+
+### How it stays decoupled
+
+- **Versioned plugin path is hidden behind a stable symlink.** `settings.json` references `~/.claude/llm-tutor/statusline-wrapper.sh`, which is a symlink to the actual script in the plugin cache. When the plugin upgrades, the symlink target changes; `settings.json` doesn't need to.
+- **The wrapper is silent on failure.** If your original command goes missing (e.g., you uninstalled claude-statusline without uninstalling llm-tutor's wrapper first), the wrapper degrades to llm-tutor's segment alone rather than producing a blank statusline.
+- **Re-installing is a no-op.** The installer detects an already-wrapped statusline and refuses to double-wrap (which would otherwise cause `Wrapper(Wrapper(Original))` recursion on uninstall).
+
+### Using the renderer directly (non-Claude-Code statuslines)
+
+If you've built your own statusline outside Claude Code — a tmux right-status line, a fish prompt, a starship segment — you can shell out to the renderer:
+
+```bash
+~/.claude/llm-tutor/statusline-segment.sh            # default: ANSI + emoji ⚡
+~/.claude/llm-tutor/statusline-segment.sh --plain    # ASCII, no color
+~/.claude/llm-tutor/statusline-segment.sh --json     # raw signals for custom formatting
+```
+
+The symlink at that stable path is created by `/tutor-statusline-install`, so run install once first even if you're not going to use the wrapper itself. The segment exits silently (empty output, exit 0) when no tutoring session is active, so unconditional wiring is safe.
 
 ## Repository structure
 
@@ -140,9 +201,9 @@ llm-tutor/                         # marketplace root
 │   └── llm-tutor/                 # the plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── output-styles/         # Echo, Cipher, Vex
-│       ├── skills/                # 7 /tutor-* skills
+│       ├── skills/                # 10 /tutor-* skills
 │       ├── hooks/                 # UserPromptSubmit cycle refill
-│       ├── scripts/               # state.sh, tier.sh
+│       ├── scripts/               # state.sh, tier.sh, statusline-{segment,wrapper,install,uninstall,toggle}.sh
 │       └── state/                 # example.json (schema reference)
 ├── docs/
 │   ├── research/                  # research catalog from initial design
