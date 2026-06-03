@@ -84,7 +84,7 @@ fi
 
 ## Step 3 — Render the dashboard
 
-The output structure:
+The output structure (topic names render from `display_name` when present, fall back to the slug-key for topics created before v0.5.0):
 
 ```
 llm-tutor status
@@ -93,12 +93,12 @@ XP:     $XP
 Cycles: $CYCLES / $CYCLES_CAP     ($REFILL_TEXT)
 
 Active topics ($ACTIVE_COUNT):
-  → slug-1                  progress: N/M concepts acquired
-  → slug-2                  progress: N/M concepts acquired
+  → Python decorators          progress: N/M concepts acquired
+  → What closures are in       progress: N/M concepts acquired
 
 Completed topics ($COMPLETED_COUNT):
-  ✓ slug-1                  +N XP   (YYYY-MM-DD)
-  ✓ slug-2                  +N XP   (YYYY-MM-DD)
+  ✓ React Suspense             +N XP   (YYYY-MM-DD)
+  ✓ Dependency injection       +N XP   (YYYY-MM-DD)
 ```
 
 ### Header
@@ -144,10 +144,12 @@ echo "Active topics ($ACTIVE_COUNT):"
 if [ "$ACTIVE_COUNT" -eq 0 ]; then
   echo "  (none — run /tutor-start <subject> to begin one)"
 else
+  # Render display_name when present, fall back to the slug-key for topics
+  # created before v0.5.0 added the field.
   echo "$ACTIVE_TOPICS" | jq -r '.[] |
-    "\(.key)|\(.value.concepts | map(select(.status == "acquired")) | length)|\(.value.concepts | length)"' | \
-  while IFS='|' read -r slug acquired total; do
-    printf "  → %-30s progress: %s/%s concepts acquired\n" "$slug" "$acquired" "$total"
+    "\(.value.display_name // .key)|\(.value.concepts | map(select(.status == "acquired")) | length)|\(.value.concepts | length)"' | \
+  while IFS='|' read -r name acquired total; do
+    printf "  → %-30s progress: %s/%s concepts acquired\n" "$name" "$acquired" "$total"
   done
 fi
 echo
@@ -160,12 +162,13 @@ echo "Completed topics ($COMPLETED_COUNT):"
 if [ "$COMPLETED_COUNT" -eq 0 ]; then
   echo "  (none yet)"
 else
+  # display_name with slug-key fallback for legacy topics.
   echo "$COMPLETED_TOPICS" | jq -r '.[] |
-    "\(.key)|\(.value.xp_earned_total // 0)|\(.value.completed_at // "?")"' | \
-  while IFS='|' read -r slug xp completed_at; do
+    "\(.value.display_name // .key)|\(.value.xp_earned_total // 0)|\(.value.completed_at // "?")"' | \
+  while IFS='|' read -r name xp completed_at; do
     # Truncate ISO timestamp to date only
     completed_date="${completed_at%%T*}"
-    printf "  ✓ %-30s +%s XP   (%s)\n" "$slug" "$xp" "$completed_date"
+    printf "  ✓ %-30s +%s XP   (%s)\n" "$name" "$xp" "$completed_date"
   done
 fi
 echo

@@ -45,6 +45,11 @@ The README's Status line is the one-word maturity claim. This is the full ledger
 - **Dim full-width separator rule** between the host statusline and llm-tutor's row when the wrapper has an original to append below. Signals "this is a separate section" so the eye doesn't read it as a third row of the host's content. Width auto-detects via `$COLUMNS` → `tput cols` → 80. Mode-aware: `─` for emoji/nerd/unicode, `-` for ascii.
 - **Truncation default bumped from 20 to 40 chars**, with a new `SLUG_MAX_LEN` knob in `~/.claude/llm-tutor/statusline.conf`. Set it to `0` to disable truncation entirely, or any positive integer to set a custom cap. Most real subjects render full-width by default now.
 
+### v0.5.1 — display_name reaches /tutor-status and /tutor-resume
+- `/tutor-status` now renders the dashboard with human display names instead of slugs. Active and completed topic rows show the subject you typed at `/tutor-start`, not the kebab-cased key.
+- `/tutor-resume` uses the display name in its orientation message ("Resuming Python decorators." instead of "Resuming python-decorators.") and accepts the display name or a substring of it when disambiguating between multiple active topics — you no longer have to remember the exact slug.
+- Backward compatible: topics created before v0.5.0 still render their slug-key, since they have no `display_name` to fall back to.
+
 ## Next
 
 - **Plugin marketplace publishing.** Currently shipped via the project's own marketplace.json at `https://github.com/Flagrare/llm-tutor`. The next step is registration in a discoverable plugin index so users find llm-tutor by browsing rather than by direct repo URL.

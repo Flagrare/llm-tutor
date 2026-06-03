@@ -55,18 +55,22 @@ echo "$ACTIVE_SLUGS" | jq -r '.[]' | nl -w1 -s'. ' | while read -r line; do
   # line is "1. slug-name"
   num=$(echo "$line" | cut -d. -f1)
   slug=$(echo "$line" | cut -d'.' -f2- | sed 's/^ //')
+  # Display the human name (display_name set at /tutor-start time) when
+  # present; fall back to the slug-key for topics created before v0.5.0.
+  display=$(bash "$STATE" get ".topics[\"$slug\"].display_name // \"$slug\"")
   acquired=$(bash "$STATE" get ".topics[\"$slug\"].concepts | map(select(.status == \"acquired\")) | length")
   total=$(bash "$STATE" get ".topics[\"$slug\"].concepts | length")
   current_name=$(bash "$STATE" get ".topics[\"$slug\"].concepts[\"$(bash "$STATE" get ".topics[\"$slug\"].current_concept_index")\"].name // \"?\"")
-  printf "  %s. %-30s (concept %s/%s: %s)\n" "$num" "$slug" "$((acquired + 1))" "$total" "$current_name"
+  printf "  %s. %-30s (concept %s/%s: %s)\n" "$num" "$display" "$((acquired + 1))" "$total" "$current_name"
 done
 echo
-echo "Which one are you resuming? (Type the slug, or just the number.)"
+echo "Which one are you resuming? (Type the name or the number.)"
 ```
 
 Wait for the user's answer. Accept either:
-- A slug matching one of the active topics
-- A 1-based number (e.g., "2")
+- A 1-based number (e.g., "2") — most common
+- A substring of any display_name or slug — match case-insensitively
+- The exact slug-key
 
 Validate the input. If invalid: "I don't see that as one of the active topics. Try again." Re-prompt.
 
@@ -78,6 +82,8 @@ Validate the input. If invalid: "I don't see that as one of the active topics. T
 CONCEPTS=$(bash "$STATE" get ".topics[\"$SLUG\"].concepts")
 CURRENT_IDX=$(bash "$STATE" get ".topics[\"$SLUG\"].current_concept_index")
 CALIBRATION=$(bash "$STATE" get ".topics[\"$SLUG\"].calibration")
+# display_name with slug-key fallback for topics created before v0.5.0.
+DISPLAY=$(bash "$STATE" get ".topics[\"$SLUG\"].display_name // \"$SLUG\"")
 TOTAL=$(echo "$CONCEPTS" | jq 'length')
 ACQUIRED_COUNT=$(echo "$CONCEPTS" | jq '[.[] | select(.status == "acquired")] | length')
 
@@ -100,7 +106,7 @@ UPCOMING_NAMES=$(echo "$CONCEPTS" | jq -r --argjson i $CURRENT_IDX \
 The orientation is brief — 3-4 lines max. The user is RESUMING, not starting; they don't need a tutorial on what the path looks like (that's `/tutor-path`).
 
 ```bash
-echo "Resuming $SLUG."
+echo "Resuming $DISPLAY."
 echo
 echo "You're at concept $CURRENT_POS/$TOTAL: $CURRENT_NAME"
 if [ -n "$ACQUIRED_NAMES" ]; then
@@ -115,7 +121,7 @@ echo
 Example output:
 
 ```
-Resuming python-decorators.
+Resuming Python decorators.
 
 You're at concept 3/6: wrapper functions
 Already acquired: closures, first-class functions
