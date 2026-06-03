@@ -50,9 +50,10 @@ The README's Status line is the one-word maturity claim. This is the full ledger
 - `/tutor-resume` uses the display name in its orientation message ("Resuming Python decorators." instead of "Resuming python-decorators.") and accepts the display name or a substring of it when disambiguating between multiple active topics — you no longer have to remember the exact slug.
 - Backward compatible: topics created before v0.5.0 still render their slug-key, since they have no `display_name` to fall back to.
 
-## Next
+## In flight
 
-- **Plugin marketplace publishing.** Currently shipped via the project's own marketplace.json at `https://github.com/Flagrare/llm-tutor`. The next step is registration in a discoverable plugin index so users find llm-tutor by browsing rather than by direct repo URL.
+- **Plugin marketplace publishing.** Topic tags applied to the GitHub repo (`claude-code-plugin`, `claude-code`, etc.), `claude plugin validate --strict` passes on both the plugin and marketplace manifests, submission filed to Anthropic's `claude-plugins-community` channel on 2026-06-03 via `claude.ai/settings/plugins/submit`. Awaiting review (timeline undocumented; expect weeks). Once approved, the plugin becomes installable via `/plugin install llm-tutor@claude-community` and the [discoverable catalog at the GitHub mirror](https://github.com/anthropics/claude-plugins-community) syncs nightly.
+- Follow-up after approval: PRs to [`hesreallyhim/awesome-claude-code`](https://github.com/hesreallyhim/awesome-claude-code) (45.6k stars) and [`ComposioHQ/awesome-claude-plugins`](https://github.com/ComposioHQ/awesome-claude-plugins) (1.7k stars) — both PR-based with table-row metadata. Deferred until the community-marketplace listing lands so the PR can cite it as a quality signal. See the [marketplace landscape research catalog](./research/2026-06-03-plugin-marketplace-landscape.md) for the full priority order.
 
 ## Considered but not committed
 
