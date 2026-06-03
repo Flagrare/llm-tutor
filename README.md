@@ -29,6 +29,7 @@ The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the p
 /tutor-statusline-toggle        flip the statusline segment on/off
 /tutor-statusline-icons         switch icon mode (emoji|nerd|unicode|ascii)
 /tutor-statusline-uninstall     restore your original statusline
+/tutor-update                   check for a newer release and surface the upgrade recipe
 ```
 
 The same teacher works for all of it — your codebase, a new framework, a CS concept you've been meaning to grok, a piece of work you're stuck on. The teacher's identity is stable; what they're teaching shifts to whatever you brought them.
@@ -126,7 +127,7 @@ llm-tutor is a single-plugin marketplace. From Claude Code:
 /reload-plugins
 ```
 
-After the reload, eleven `/tutor-*` commands are available (the seven core ones — `/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume` — plus four statusline ones — `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-icons`, `/tutor-statusline-uninstall`). The three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
+After the reload, twelve `/tutor-*` commands are available (the seven core ones — `/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume` — four statusline ones — `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-icons`, `/tutor-statusline-uninstall` — and `/tutor-update` for checking GitHub for a newer release). The three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
 
 To pick a teacher: `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. Then `/tutor-start <subject>` or `/tutor-project` to begin.
 
@@ -226,7 +227,7 @@ llm-tutor/                         # marketplace root
 │   └── llm-tutor/                 # the plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── output-styles/         # Echo, Cipher, Vex
-│       ├── skills/                # 11 /tutor-* skills
+│       ├── skills/                # 12 /tutor-* skills
 │       ├── hooks/                 # SessionStart (refresh-symlinks) + UserPromptSubmit (refill-cycles)
 │       ├── scripts/               # state.sh, tier.sh, statusline-{segment,wrapper,install,uninstall,toggle,icons}.sh
 │       └── state/                 # example.json (schema reference)
