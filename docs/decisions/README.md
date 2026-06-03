@@ -6,6 +6,7 @@ Locked-in design decisions for llm-tutor. Each entry pairs a *what* (the decisio
 
 | Date | Topic | Backing research |
 |------|-------|------------------|
+| 2026-06-03 | [Statusline integration architecture](./2026-06-03-statusline-integration-architecture.md) — why the wrapper pattern, and why rendering logic lives in llm-tutor rather than in any statusline | (engineering call, no external research) |
 | 2026-06-02 | [`/tutor-start` and gamification](./2026-06-02-tutor-start-and-gamification.md) — 5 decisions covering calibration depth, path surfacing format, state schema, feedback flow, and the rotating-question bank | [llm-tutor design foundations](../research/2026-06-02-llm-tutor-design-foundations.md) |
 
 ## Adding a decision

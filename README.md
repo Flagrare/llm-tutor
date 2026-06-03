@@ -195,6 +195,8 @@ Restores your original `statusLine.command` byte-for-byte. Your tutoring progres
 
 ### How it stays decoupled
 
+For the reasoning behind the wrapper pattern (vs. asking users to wire the segment into their own statusline, vs. baking the integration into claude-statusline), see [`docs/decisions/2026-06-03-statusline-integration-architecture.md`](./docs/decisions/2026-06-03-statusline-integration-architecture.md).
+
 - **Versioned plugin path is hidden behind a stable symlink.** `settings.json` references `~/.claude/llm-tutor/statusline-wrapper.sh`, which is a symlink to the actual script in the plugin cache. When the plugin upgrades, the symlink target changes; `settings.json` doesn't need to.
 - **Symlinks self-heal across plugin upgrades.** A `SessionStart` hook re-runs `ln -sf` against the current `$CLAUDE_PLUGIN_ROOT` every session, so a `/plugin update llm-tutor` followed by `/reload-plugins` is enough — no re-install required.
 - **The wrapper is silent on failure.** If your original command goes missing (e.g., you uninstalled claude-statusline without uninstalling llm-tutor's wrapper first), the wrapper degrades to llm-tutor's segment alone rather than producing a blank statusline.
