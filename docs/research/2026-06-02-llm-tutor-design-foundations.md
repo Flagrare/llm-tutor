@@ -119,11 +119,11 @@ For an LLM-powered Socratic tutor that constructs curricula on the fly for arbit
 
 ### [MIT Media Lab — "Your Brain on ChatGPT" cognitive debt study](https://www.edtechinnovationhub.com/news/mit-study-shows-chatgpt-reshapes-student-brain-function-and-reduces-creativity-when-used-from-the-start)
 - **Authors / Org:** Nataliya Kosmyna et al., MIT Media Lab; secondary coverage by EdTech Innovation Hub
-- **Type:** academic study with EEG measurement; secondary news write-up
-- **Published:** 2025
+- **Type:** preprint with EEG measurement; secondary news write-up
+- **Published:** 2025 (preprint; not yet peer-reviewed at time of cataloging)
 - **Accessed:** 2026-06-02
-- **Relevance:** high
-- **What this contributed:** The EEG-level evidence for "AI-first usage produces measurable neural under-encoding" — *cognitive debt*. Key sequence-dependent finding: independence-first → AI-revision produces strong encoding; AI-first → independence produces weak encoding. This single finding directly justifies our design constraint that the tutor must refuse help until an attempt is made. Reframes the salmon cost from "friction mechanic" to "evidence-based neural-encoding intervention."
+- **Relevance:** medium (suggestive; not load-bearing)
+- **What this contributed:** Suggestive EEG-level evidence for "AI-first usage produces measurable neural under-encoding" — *cognitive debt*. Key sequence-dependent finding: independence-first → AI-revision produces strong encoding; AI-first → independence produces weak encoding. **Caveat:** preprint as of 2025 with active methodological discussion in the community (sample size, EEG-to-cognition inference chain, generalizability beyond the essay-writing task). We treat the result as suggestive — directionally consistent with retrieval-practice and productive-failure findings from older non-EEG research — rather than as the load-bearing claim. The cycle-cost mechanic is justified by the PNAS Bavli result first; the MIT EEG finding is corroborating, not anchoring.
 
 ### [Self-Determination Theory (Ryan & Deci)](https://selfdeterminationtheory.org/wp-content/uploads/2020/04/2020_RyanDeci_CEP_PrePrint.pdf)
 - **Authors / Org:** Richard M. Ryan, Edward L. Deci (University of Rochester)
@@ -181,7 +181,7 @@ For full per-angle bibliographies (including additional secondary sources used b
 
 | Design choice | Evidence |
 |---|---|
-| **The anti-dependency thesis** | MIT EEG study (2025) shows AI-first usage produces *cognitive debt* — measurable neural under-encoding. Bavli et al. 2025 (PNAS): ChatGPT-with-answers users scored 17% worse on later unsupported tasks; Socratic users didn't degrade. "Tool that makes itself unnecessary" is a measurable cognitive intervention, not a stylistic preference. |
+| **The anti-dependency thesis** | Anchor: Bavli et al. 2025 (PNAS) — ChatGPT-with-answers users scored 17% worse on later unsupported tasks; Socratic users didn't degrade. Corroborating (preprint, suggestive): MIT Media Lab 2025 EEG study reports AI-first usage may produce *cognitive debt* via measurable neural under-encoding. "Tool that makes itself unnecessary" is positioned as a measurable cognitive intervention, with PNAS as the load-bearing claim and the MIT result as directionally consistent suggestive support. |
 | **The salmon cost** | Bjork & Bjork's generation effect — requiring an attempt before assistance is one of the most robustly replicated conditions for durable learning. The salmon cost punishes *skipping the struggle*, which is pedagogically defensible. Different from Duolingo's Hearts (punishes failure — predatory). |
 | **Hint layers (ours: 5; Boots: 0)** | Boots's primary failure mode reported by users (Trustpilot): when stuck, Boots "just repeats the task and calls you 'cub'." It has no escalation path. Our 5-rung hint ladder directly addresses this. |
 | **Pre-/post-completion behavior split** | Boots branches its system prompt on `lesson_completed` (boot.dev/blog/news/bootdev-beat-2025-06). Our personas already implement this ("in a lesson vs. between lessons"). |

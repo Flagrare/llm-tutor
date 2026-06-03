@@ -31,16 +31,18 @@ A 2024 arxiv paper "Beyond Efficiency and Convenience" articulates what it calls
 
 ## Research on Cognitive Offloading and Tool Reliance
 
-### The Cognitive Debt Framework (MIT, 2025)
+### The Cognitive Debt Framework (MIT, 2025 — preprint)
 
-The most empirically grounded finding: a 2025 MIT Media Lab EEG study ("Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task") tracked 54 students across four writing sessions, measuring brain activity via high-density EEG. Key results:
+A 2025 MIT Media Lab EEG study ("Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task") tracked 54 students across four writing sessions, measuring brain activity via high-density EEG. **Caveat before reading further:** the paper is a preprint as of 2025, with active methodological discussion in the community (sample size, EEG-to-cognition inference chain, generalizability beyond the essay-writing task). We treat the findings as *suggestive* of a real effect rather than definitive, and lean harder on the [PNAS Bavli et al. result below](#the-socratic-vs-direct-answer-study-pnas-2025) as the cleaner anchor for the anti-dependency thesis.
+
+With that caveat, the reported results:
 
 - Students using ChatGPT showed **lower brain activity, weaker memory recall, and reduced ownership of their writing**.
 - Students who started unaided and then revised with AI showed the **strongest brain-wide connectivity** — the best outcome.
 - Students who started with AI and later wrote independently **struggled to activate the same neural networks**, producing "linguistically bland" essays.
 - The term **"cognitive debt"** describes how reliance on generative tools reduces the brain's ability to encode, retrieve, and synthesize information over time.
 
-The sequence matters. AI-first, then independence = deficit. Independence-first, then AI-assisted revision = enhancement. This is a directly actionable design signal.
+If the sequence finding holds up under further scrutiny, it's a directly actionable design signal: AI-first then independence = deficit; independence-first then AI-assisted revision = enhancement. Even at preprint maturity, the sequence direction matches what older non-EEG research on retrieval practice and productive failure (Kapur, Bjork) predicts — so we're comfortable using it as one input among several, not as the load-bearing claim.
 
 ### Age Asymmetry
 
