@@ -91,12 +91,59 @@ mv "$tmp" "$SETTINGS"
 # --- enable by default ---
 touch "$ENABLED_FLAG"
 
+# Seed icon-mode config (emoji default). The user can switch with
+# /tutor-statusline-icons. We don't overwrite an existing conf — picks up
+# whatever the user had if they reinstall.
+CONF_FILE="$STATE_DIR/statusline.conf"
+[ -f "$CONF_FILE" ] || printf "ICONS=emoji\n" > "$CONF_FILE"
+
+# --- persona-aware success message ---
+# Read the active output style from settings.json. Claude Code stores it
+# under .outputStyle (string) at the user-settings level; we accept both
+# shapes for robustness.
+active_style=""
+if [ -f "$SETTINGS" ]; then
+  active_style=$(jq -r '.outputStyle // .output_style // ""' "$SETTINGS" 2>/dev/null || printf "")
+  active_style=$(printf "%s" "$active_style" | tr '[:upper:]' '[:lower:]')
+fi
+
 echo
 echo "Installed. Your existing statusline (if any) will still render, with"
-echo "llm-tutor's segment appended as an extra row when a session is active."
+echo "llm-tutor's segment appended as an extra row."
 echo
-echo "  Toggle off: /tutor-statusline-toggle off"
-echo "  Toggle on:  /tutor-statusline-toggle on"
-echo "  Uninstall:  /tutor-statusline-uninstall"
+
+case "$active_style" in
+  echo|cipher|vex)
+    pretty=$(printf "%s" "$active_style" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
+    echo "  Active teacher: $pretty (the row will render in $pretty's signature color)"
+    ;;
+  "")
+    echo "  No teacher selected yet (the row renders in a neutral color)."
+    echo "  Pick one: /config → Output style → Echo, Cipher, or Vex"
+    ;;
+  *)
+    echo "  Active output style: $active_style (no llm-tutor persona — row renders neutral)"
+    ;;
+esac
+
+# --- preview ---
+# Render the segment right now so the user knows what they're about to see.
+# We pass the persona explicitly because the wrapper would normally inject
+# it; this is a static one-shot preview, not a live render.
+if [ -f "$STATE_DIR/state.json" ]; then
+  echo
+  echo "  Preview:"
+  echo -n "    "
+  LLM_TUTOR_PERSONA="$active_style" bash "$SEGMENT_SYMLINK" 2>/dev/null || true
+  echo
+else
+  echo
+  echo "  No tutoring state yet. Start a session: /tutor-start <subject>"
+  echo "  (the segment auto-appears the moment state.json is created)"
+fi
+
 echo
-echo "Restart Claude Code (or wait for the next statusline render) to see it."
+echo "Controls:"
+echo "  /tutor-statusline-toggle [on|off]    show / hide without uninstalling"
+echo "  /tutor-statusline-icons  [mode]      emoji | nerd | unicode | ascii"
+echo "  /tutor-statusline-uninstall          full revert"

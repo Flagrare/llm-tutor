@@ -1,6 +1,16 @@
 {
-  "description": "Daily cycles refill check — runs before every user prompt. Idempotent; no-op when less than a day has passed since the last reset. Exits silently when no state file exists (i.e., user hasn't started using the plugin yet).",
+  "description": "Two hooks: SessionStart refreshes statusline-integration symlinks so plugin upgrades don't strand them at old versions (no-op when the integration isn't installed). UserPromptSubmit runs the daily cycles refill check (no-op unless 24h have passed since the last reset).",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/refresh-symlinks.sh"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [

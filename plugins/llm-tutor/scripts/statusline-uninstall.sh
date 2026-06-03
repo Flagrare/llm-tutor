@@ -51,6 +51,7 @@ if [ -f "$SETTINGS" ]; then
 fi
 
 # --- clean up llm-tutor's wrapper artifacts ---
+# We keep statusline.conf (icon-mode preference) — re-install honors it.
 rm -f "$ENABLED_FLAG" "$WRAPPER_SYMLINK" "$SEGMENT_SYMLINK" "$WRAPPED_FILE"
 
 echo

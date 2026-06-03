@@ -51,9 +51,23 @@ fi
 append_segment=true
 [ -f "$ENABLED_FLAG" ] || append_segment=false
 
+# Extract the active output style from Claude Code's status JSON. When the
+# user has picked Echo / Cipher / Vex via /config → Output style, the
+# segment renders in that persona's signature color. Anything else (or no
+# selection) falls back to a neutral instructor color. We accept all four
+# field-name variants Claude Code has shipped over time.
+persona=""
+if command -v jq >/dev/null 2>&1; then
+  persona=$(printf "%s" "$stdin_buf" | jq -r '
+    .output_style.name // .output_style //
+    .outputStyle.name  // .outputStyle  //
+    ""
+  ' 2>/dev/null || printf "")
+fi
+
 segment=""
 if $append_segment && [ -x "$SEGMENT_SH" ]; then
-  segment=$(bash "$SEGMENT_SH" 2>/dev/null || printf "")
+  segment=$(LLM_TUTOR_PERSONA="$persona" bash "$SEGMENT_SH" 2>/dev/null || printf "")
 fi
 
 # --- combine ---
