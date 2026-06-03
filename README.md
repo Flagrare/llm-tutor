@@ -4,6 +4,9 @@ A Claude Code plugin that turns Claude into a Socratic tutor for *anything you w
 
 Inspired by Boots from boot.dev, but generalized: no fixed curriculum, no chosen topics. The tutor scaffolds a path through whatever you bring it.
 
+
+<img width="635" height="60" alt="Screenshot 2026-06-03 at 11 27 10" src="https://github.com/user-attachments/assets/ed0a782c-708d-4d8f-8616-68632f300f5a" />
+
 ## Try it
 
 Three commands to install, one to pick a teacher, one to start learning:
