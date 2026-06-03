@@ -153,6 +153,12 @@ llm-tutor is for users who want the full Boots-style experience: a teacher you b
 - [`docs/research/`](./docs/research/) — Research catalog. The PNAS / MIT studies and the Illich theoretical lineage that ground the anti-dependency philosophy.
 - [`docs/roadmap.md`](./docs/roadmap.md) — Full ship-log and what's next.
 
+## Privacy
+
+llm-tutor runs entirely on your machine. There's no server, no telemetry, no tracking, no remote logging. All state — XP, cycles, topic progress, the feedback you've given the tutor — lives in `~/.claude/llm-tutor/state.json` on your local filesystem. Uninstalling the plugin doesn't touch that file; you can delete it yourself with `rm -rf ~/.claude/llm-tutor` for a clean slate.
+
+The plugin makes no network calls of its own. The tutoring dialogue is between you and Claude Code, the same as any other Claude Code session. The only outbound HTTP request anywhere in the codebase is `/tutor-update`'s check against the GitHub Releases API for a newer version — and that's user-initiated, only happening when you run the command. No background polling, no analytics beacons.
+
 ## License
 
 MIT — see [`LICENSE`](./LICENSE).
