@@ -27,6 +27,7 @@ The tutor doesn't ship lessons. You bring the subject; the tutor scaffolds the p
 /tutor-done                     mark current topic as understood; claim XP
 /tutor-statusline-install       inject XP/cycles/topic into your statusline
 /tutor-statusline-toggle        flip the statusline segment on/off
+/tutor-statusline-icons         switch icon mode (emoji|nerd|unicode|ascii)
 /tutor-statusline-uninstall     restore your original statusline
 ```
 
@@ -95,7 +96,7 @@ Tier is **cosmetic only** — it's a title showing your trajectory, not a functi
 - [x] `/tutor-resume` skill — pick up a paused topic with a brief orientation (current concept, acquired so far, upcoming) and hand off to the persona
 - [x] `/tutor-codebase <path>` skill — codebase-grounded tutoring with file-anchored concepts (the distinctive value vs commercial LLM tutors)
 - [x] `/tutor-project` skill — convenience wrapper for `/tutor-codebase .`; tutor on the current working directory
-- [x] Statusline integration — wrapper-based, works with any Claude Code statusline (claude-statusline, custom, none). Three commands: `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-uninstall`. Shows tier, cycles, active topic + concept progress as an extra row beneath whatever statusline you already have.
+- [x] Statusline integration — wrapper-based, works with any Claude Code statusline (claude-statusline, custom, none). Four commands: `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-icons`, `/tutor-statusline-uninstall`. Persona-colored row (Echo cyan / Cipher purple / Vex red-orange) showing tier with XP-toward-next-tier bar, cycles balance, active topic with concept-progress bar. Four icon modes matching claude-statusline's pattern.
 - [ ] Plugin marketplace publishing
 
 ## Design constraint: no plugin dependencies
@@ -125,7 +126,7 @@ llm-tutor is a single-plugin marketplace. From Claude Code:
 /reload-plugins
 ```
 
-After the reload, ten `/tutor-*` commands are available (the seven core ones — `/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume` — plus three statusline ones — `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-uninstall`). The three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
+After the reload, eleven `/tutor-*` commands are available (the seven core ones — `/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume` — plus four statusline ones — `/tutor-statusline-install`, `/tutor-statusline-toggle`, `/tutor-statusline-icons`, `/tutor-statusline-uninstall`). The three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
 
 To pick a teacher: `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. Then `/tutor-start <subject>` or `/tutor-project` to begin.
 
@@ -144,13 +145,15 @@ This saves your current `~/.claude/settings.json` `statusLine.command` (whatever
 1. Pipes Claude Code's status JSON to your original command and captures its stdout (so your existing statusline still renders).
 2. Appends llm-tutor's segment as an additional row.
 
-A typical result with claude-statusline below — two original rows on top, llm-tutor's row appended:
+A typical result with claude-statusline below — two original rows on top, llm-tutor's row appended in the active teacher's signature color:
 
 ```
 claude-opus-4-7  │  🧠  high              📂 my-repo  🌿 main ~+ ↑2  │  ctx: [████░░░░░░] 38%
                                                        5h:42% 🔥 [1h20m]  │  7d:8% 🍃 [3d4h]  │  $1.23
-Booted ⚡4/5 python-decorators 2/5
+🎙  ECHO · 🏷  Booted ▰▱▱▱▱ · ⚡  4/5 · 📖  python-decorators ▰▰▱▱▱
 ```
+
+The persona label (`ECHO` / `CIPHER` / `VEX`) plus accent color is the row's signature — it owns its line instead of blending into the rest of the statusline. XP-toward-next-tier and concept-progress render as 5-cell bars; cycles glow yellow when only one is left.
 
 ### Toggle
 
@@ -164,6 +167,24 @@ To hide the segment without uninstalling:
 
 When off, the wrapper passes the original statusline through unchanged. Useful for screen-sharing.
 
+### Icons
+
+Four icon modes mirroring claude-statusline's pattern, so the llm-tutor row matches the aesthetic of the host statusline:
+
+```
+/tutor-statusline-icons              # cycle: emoji → nerd → unicode → ascii → emoji
+/tutor-statusline-icons nerd         # set explicit mode
+```
+
+| Mode | Persona avatar | Tier | Bolt | Topic | Bar cells |
+|---|---|---|---|---|---|
+| `emoji` (default) | 🎙 | 🏷 | ⚡ | 📖 | ▰▱ |
+| `nerd` | `nf-md-school` | `nf-md-trophy-outline` | `nf-fa-bolt` | `nf-fa-book` | ▰▱ |
+| `unicode` | ※ | ✦ | ⚡ | ▷ | ▰▱ |
+| `ascii` | `[E]` / `[C]` / `[V]` / `[T]` | `^` | `*` | `>` | `#-` |
+
+The choice persists in `~/.claude/llm-tutor/statusline.conf`. Nerd-mode glyphs require a Nerd Font in your terminal; the other three modes work anywhere.
+
 ### Uninstall
 
 ```
@@ -175,8 +196,10 @@ Restores your original `statusLine.command` byte-for-byte. Your tutoring progres
 ### How it stays decoupled
 
 - **Versioned plugin path is hidden behind a stable symlink.** `settings.json` references `~/.claude/llm-tutor/statusline-wrapper.sh`, which is a symlink to the actual script in the plugin cache. When the plugin upgrades, the symlink target changes; `settings.json` doesn't need to.
+- **Symlinks self-heal across plugin upgrades.** A `SessionStart` hook re-runs `ln -sf` against the current `$CLAUDE_PLUGIN_ROOT` every session, so a `/plugin update llm-tutor` followed by `/reload-plugins` is enough — no re-install required.
 - **The wrapper is silent on failure.** If your original command goes missing (e.g., you uninstalled claude-statusline without uninstalling llm-tutor's wrapper first), the wrapper degrades to llm-tutor's segment alone rather than producing a blank statusline.
 - **Re-installing is a no-op.** The installer detects an already-wrapped statusline and refuses to double-wrap (which would otherwise cause `Wrapper(Wrapper(Original))` recursion on uninstall).
+- **Persona color is read at render time, not at install time.** The wrapper extracts `output_style.name` from Claude Code's status JSON on every render — switching teachers via `/config` updates the row's color immediately, without re-running install.
 
 ### Using the renderer directly (non-Claude-Code statuslines)
 
@@ -201,9 +224,9 @@ llm-tutor/                         # marketplace root
 │   └── llm-tutor/                 # the plugin
 │       ├── .claude-plugin/plugin.json
 │       ├── output-styles/         # Echo, Cipher, Vex
-│       ├── skills/                # 10 /tutor-* skills
-│       ├── hooks/                 # UserPromptSubmit cycle refill
-│       ├── scripts/               # state.sh, tier.sh, statusline-{segment,wrapper,install,uninstall,toggle}.sh
+│       ├── skills/                # 11 /tutor-* skills
+│       ├── hooks/                 # SessionStart (refresh-symlinks) + UserPromptSubmit (refill-cycles)
+│       ├── scripts/               # state.sh, tier.sh, statusline-{segment,wrapper,install,uninstall,toggle,icons}.sh
 │       └── state/                 # example.json (schema reference)
 ├── docs/
 │   ├── research/                  # research catalog from initial design
