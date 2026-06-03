@@ -115,17 +115,40 @@ A standalone Socratic-tutor skill — invoked once per session, no progress trac
 
 llm-tutor is for users who want the full Boots-style experience: a teacher you build a relationship with across sessions, friction that creates honest "do I actually need help right now?" moments, and persistent progress so your work compounds. The two projects are complementary, not competing.
 
-## How to try a persona right now
+## Install
 
-Without installing as a plugin, you can symlink one of the output styles into your user output-styles directory:
+llm-tutor is a single-plugin marketplace. From Claude Code:
 
-```bash
-mkdir -p ~/.claude/output-styles
-ln -sf $(pwd)/output-styles/echo.md ~/.claude/output-styles/echo.md
-# or cipher.md or vex.md
+```
+/plugin marketplace add Flagrare/llm-tutor
+/plugin install llm-tutor@llm-tutor
+/reload-plugins
 ```
 
-Then `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. The persona's voice and disposition apply, but currency/topics aren't wired up yet, so this is just persona testing.
+After the reload, the seven `/tutor-*` commands are available (`/tutor-start`, `/tutor-codebase`, `/tutor-project`, `/tutor-done`, `/tutor-path`, `/tutor-status`, `/tutor-resume`), the three personas show up under `/config` → Output style (Echo, Cipher, Vex), and the daily cycles refill hook fires silently on every user prompt.
+
+To pick a teacher: `/config` → Output style → **Echo** (or Cipher or Vex) → `/clear`. Then `/tutor-start <subject>` or `/tutor-project` to begin.
+
+## Repository structure
+
+This repo is a one-plugin marketplace:
+
+```
+llm-tutor/                         # marketplace root
+├── .claude-plugin/marketplace.json
+├── plugins/
+│   └── llm-tutor/                 # the plugin
+│       ├── .claude-plugin/plugin.json
+│       ├── output-styles/         # Echo, Cipher, Vex
+│       ├── skills/                # 7 /tutor-* skills
+│       ├── hooks/                 # UserPromptSubmit cycle refill
+│       ├── scripts/               # state.sh, tier.sh
+│       └── state/                 # example.json (schema reference)
+├── docs/
+│   ├── research/                  # research catalog from initial design
+│   └── decisions/                 # D1-D6 design decisions
+└── README.md
+```
 
 ## License
 
