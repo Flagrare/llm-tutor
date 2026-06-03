@@ -33,6 +33,13 @@ The README's Status line is the one-word maturity claim. This is the full ledger
 ### v0.4.0 — Update check
 - `/tutor-update` — compares the installed plugin-cache version against the latest GitHub release, prints the release notes inline when a newer version is out, and surfaces the two commands needed to upgrade.
 
+### v0.4.1 — Self-locating wrapper (durability)
+- `/tutor-statusline-install` now writes a small bash **shim** at `~/.claude/llm-tutor/statusline-wrapper.sh` instead of a symlink. Each render, the shim self-locates the latest plugin cache version and execs its wrapper.
+- `/plugin update llm-tutor` followed by `/reload-plugins` is now sufficient to see new statusline behavior — no `/tutor-statusline-install` rerun, no session restart. Closes the gap where mid-session plugin upgrades produced stale renders until next restart.
+- Wrapper lazily refreshes the segment symlink (`~/.claude/llm-tutor/statusline-segment.sh`) so direct shell-out users (the path documented in [`docs/guides/statusline.md`](./guides/statusline.md)) also see the latest version's output.
+- `SessionStart` hook removed — the self-locating shim makes it redundant.
+- Migration: users on v0.2.0–v0.4.0 should re-run `/tutor-statusline-install` once to upgrade to the shim. After that, all future upgrades self-heal.
+
 ## Next
 
 - **Plugin marketplace publishing.** Currently shipped via the project's own marketplace.json at `https://github.com/Flagrare/llm-tutor`. The next step is registration in a discoverable plugin index so users find llm-tutor by browsing rather than by direct repo URL.

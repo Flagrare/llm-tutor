@@ -33,6 +33,20 @@ ENABLED_FLAG="$STATE_DIR/statusline-enabled"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SEGMENT_SH="$SCRIPT_DIR/statusline-segment.sh"
 
+# Lazily refresh the segment symlink in $STATE_DIR so direct shell-out
+# users (~/.claude/llm-tutor/statusline-segment.sh, the path documented
+# in the statusline guide) always see the current cache version's
+# segment renderer — not whatever cache version happened to be active
+# when /tutor-statusline-install last ran. One readlink + string compare
+# per render; the ln -sf only runs when the target has actually drifted.
+SEGMENT_SYMLINK="$STATE_DIR/statusline-segment.sh"
+if [ -L "$SEGMENT_SYMLINK" ]; then
+  current_target=$(readlink "$SEGMENT_SYMLINK" 2>/dev/null)
+  if [ "$current_target" != "$SEGMENT_SH" ]; then
+    ln -sf "$SEGMENT_SH" "$SEGMENT_SYMLINK" 2>/dev/null
+  fi
+fi
+
 # Read stdin once; we may need to feed it to the original command.
 stdin_buf=$(cat)
 

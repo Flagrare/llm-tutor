@@ -62,9 +62,9 @@ Restores your original `statusLine.command` byte-for-byte. Your tutoring progres
 
 ## How it stays decoupled
 
-The wrapper-based design has five properties worth knowing about, especially if you're debugging an edge case or thinking about extending the integration.
+The wrapper-based design has four properties worth knowing about, especially if you're debugging an edge case or thinking about extending the integration.
 
-`settings.json` references `~/.claude/llm-tutor/statusline-wrapper.sh`, which is a symlink to the actual script in the plugin cache. Plugin upgrades change the symlink target; `settings.json` doesn't need to. A `SessionStart` hook re-runs `ln -sf` against the current `$CLAUDE_PLUGIN_ROOT` every session, so `/plugin update llm-tutor` followed by `/reload-plugins` is enough — no re-install required.
+`settings.json` references `~/.claude/llm-tutor/statusline-wrapper.sh`, which is a six-line bash **shim** written once by `/tutor-statusline-install`. Each render, the shim runs `ls | sort -V | tail -1` against the plugin's cache directory to find the latest installed version, then `exec`s *that version's* wrapper. So a `/plugin update llm-tutor + /reload-plugins` is sufficient — the next statusline render picks up the new version automatically, no install rerun, no session restart. (Earlier versions used a symlink that was refreshed by a `SessionStart` hook; that approach left a stale-render window when users updated mid-session. v0.4.1 replaced it with the shim.)
 
 The wrapper is silent on failure. If your original command goes missing — for instance, you uninstalled claude-statusline without uninstalling llm-tutor's wrapper first — the wrapper degrades to llm-tutor's segment alone rather than producing a blank statusline. You see a visibly degraded statusline, not a broken one.
 

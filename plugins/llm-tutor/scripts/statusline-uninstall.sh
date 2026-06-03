@@ -6,16 +6,17 @@
 # contains {"none": true}), removes the statusLine key from settings.json
 # entirely.
 #
-# Always removes the symlinks and the enable flag. Leaves state.json,
-# tutoring progress, and the saved-original file alone — the user can
-# /tutor-statusline-install again later without re-losing their original.
+# Always removes the wrapper file (shim), the segment symlink, and the
+# enable flag. Leaves state.json, tutoring progress, and the
+# saved-original file alone — the user can /tutor-statusline-install
+# again later without re-losing their original.
 
 set -e
 
 STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/llm-tutor}"
 WRAPPED_FILE="$STATE_DIR/wrapped-statusline.json"
 ENABLED_FLAG="$STATE_DIR/statusline-enabled"
-WRAPPER_SYMLINK="$STATE_DIR/statusline-wrapper.sh"
+WRAPPER_PATH="$STATE_DIR/statusline-wrapper.sh"
 SEGMENT_SYMLINK="$STATE_DIR/statusline-segment.sh"
 SETTINGS="$HOME/.claude/settings.json"
 
@@ -27,8 +28,9 @@ fi
 if [ ! -f "$WRAPPED_FILE" ]; then
   echo "llm-tutor statusline integration doesn't appear to be installed."
   echo "(No $WRAPPED_FILE found.)"
-  # Defensive: still remove flag + symlinks if they happen to exist.
-  rm -f "$ENABLED_FLAG" "$WRAPPER_SYMLINK" "$SEGMENT_SYMLINK"
+  # Defensive: still remove flag + wrapper file + segment symlink if
+  # they happen to exist.
+  rm -f "$ENABLED_FLAG" "$WRAPPER_PATH" "$SEGMENT_SYMLINK"
   exit 0
 fi
 
@@ -52,7 +54,7 @@ fi
 
 # --- clean up llm-tutor's wrapper artifacts ---
 # We keep statusline.conf (icon-mode preference) — re-install honors it.
-rm -f "$ENABLED_FLAG" "$WRAPPER_SYMLINK" "$SEGMENT_SYMLINK" "$WRAPPED_FILE"
+rm -f "$ENABLED_FLAG" "$WRAPPER_PATH" "$SEGMENT_SYMLINK" "$WRAPPED_FILE"
 
 echo
 echo "Uninstalled. Tutoring state (XP, cycles, topics) is preserved in $STATE_DIR/state.json."
