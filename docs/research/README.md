@@ -7,6 +7,7 @@ External research conducted for llm-tutor. Each entry credits the sources it lea
 | Date | Topic | Triggered by | Informed |
 |------|-------|--------------|----------|
 | 2026-06-02 | [llm-tutor Design Foundations](./2026-06-02-llm-tutor-design-foundations.md) | Pivot to "meta-tutor" vision; needed empirical grounding before `/tutor-start` and the gamification model | Persona files (anti-dependency philosophy), README (convivial-tool framing, "teach me this codebase" positioning), forthcoming `/tutor-start` and `state.json` |
+| 2026-06-03 | [Claude Code Plugin Marketplace Landscape](./2026-06-03-plugin-marketplace-landscape.md) | Preparing to publish llm-tutor to a marketplace, needed to know what marketplaces actually exist | llm-tutor release plan (submission order: topic tag → community marketplace → `hesreallyhim` PR → `Composio` PR), README install instructions, GitHub repo Topics field |
 
 ## Supporting per-angle notes (2026-06-02 session)
 
