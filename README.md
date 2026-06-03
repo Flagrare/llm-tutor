@@ -69,11 +69,11 @@ Three Echo properties show up immediately: calibration before instruction, produ
 
 > An LLM that exists to make itself less necessary.
 
-Most LLM-as-helper relationships build dependency — you get faster at asking the AI to do things, never build the underlying skill yourself. The relationship is profitable for the AI's owner, expensive for you, and over time, *alienating*: you stop being someone who understands things and start being someone who knows how to prompt for things.
+Every major LLM product is *incentivized to make you ask it more*. Anthropic, OpenAI, Google — they sell tokens; every bit of your cognition outsourced is revenue. The flywheel rewards the product when you stop being someone who understands things and start being someone who knows how to prompt for things. It's profitable for the AI's owner, expensive for you, and over time, *alienating*.
 
-llm-tutor is the alternative. The Socratic guardrails (no answers, only questions; hints in layers; explicit friction to ask for help) aren't a teaching style choice — they're an *anti-capture* mechanism. The point isn't to be the best AI tutor. The point is to be a tutor that, after working with it, leaves you needing it less.
+llm-tutor inverts that incentive. The Socratic guardrails — no answers, only questions; hints in layers; an explicit cost to ask for help — aren't a teaching-style choice. They're **anti-incentives**: design moves that punish over-reliance and reward independent struggle. The point isn't to be the best AI tutor. The point is to be a tutor that, after working with it, leaves you needing it less. The win condition is you uninstalling this.
 
-This isn't just a stance — it's empirically backed. A 2025 PNAS study found ChatGPT-with-answers users scored 17% worse on later unsupported tasks; Socratic-style users didn't degrade. An MIT EEG study showed AI-first usage produces measurable *cognitive debt*. The plugin's design is grounded in this evidence; see [`docs/research/2026-06-02-llm-tutor-design-foundations.md`](./docs/research/2026-06-02-llm-tutor-design-foundations.md) for the full research catalog. The framing language we use ("convivial tool") comes from Illich, 1973 — the theoretical lineage we're standing in.
+This isn't just a stance — it's empirically backed. A 2025 PNAS study found ChatGPT-with-answers users scored 17% worse on later unsupported tasks; Socratic-style users didn't degrade. An MIT EEG study showed AI-first usage produces measurable *cognitive debt* — neural under-encoding visible on a scan. Ivan Illich named this kind of tool a **convivial tool** in 1973: one that amplifies its user's autonomy instead of substituting for it. A bicycle, not an e-bike. Most LLM products are e-bikes — they replace effort. llm-tutor is meant as a bicycle. The full research catalog is in [`docs/research/`](./docs/research/).
 
 ## The three teachers
 
@@ -88,7 +88,7 @@ Personas vary along **voice**, **pedagogy**, and **framing** — not just tone.
 
 ## Cycles and tiers
 
-Borrowed from boot.dev's Boots — and structured to make help-seeking a deliberate choice rather than a default.
+Borrowed from boot.dev's Boots, designed around a single principle: **make help-seeking expensive, make independence cheap.** Every move below is an anti-incentive against the failure mode the research catalog describes — reaching for the AI before reaching for your own attempt.
 
 | | What it is |
 |---|---|
