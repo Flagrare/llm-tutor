@@ -83,7 +83,7 @@ Tier is **cosmetic only** — it's a title showing your trajectory, not a functi
 
 ## Status
 
-**Pre-alpha.** Currently shipping:
+**Alpha.** Currently shipping:
 
 - [x] Three personas with anti-dependency philosophy (Echo / Cipher / Vex)
 - [x] Design decisions locked: calibration depth, path format, state schema, feedback flow ([`docs/decisions/`](./docs/decisions/))

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "llm-tutor",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Socratic-method tutor for Claude Code with anti-dependency design. Teach yourself any subject, codebase, or concept through dialogue with Echo, Cipher, or Vex.",
   "owner": {
     "name": "Yuri Flagrare",
@@ -11,7 +11,7 @@
     {
       "name": "llm-tutor",
       "source": "./plugins/llm-tutor",
-      "description": "Socratic tutor plugin. Three personas (Echo / Cipher / Vex), seven skills (/tutor-start, /tutor-codebase, /tutor-project, /tutor-done, /tutor-path, /tutor-status, /tutor-resume), cycles currency, 10-tier progression toward Self-Hosting. Anti-dependency by design — the tutor exists to make itself unnecessary."
+      "description": "Socratic tutor plugin. Three personas (Echo / Cipher / Vex), eleven slash commands, cycles currency, 10-tier progression toward Self-Hosting, persona-colored statusline integration that wraps any host statusline. Anti-dependency by design — the tutor exists to make itself unnecessary."
     }
   ]
 }
