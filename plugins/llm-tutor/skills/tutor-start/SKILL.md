@@ -129,6 +129,15 @@ Be honest with the dependency lists. Don't lazy-write `[1, 2, …, N-1]` for eve
 
 ```bash
 bash "$STATE" maybe-init-topic "$SLUG"
+# Capture the user's original subject string as the topic's display_name.
+# This is what /tutor-status, /tutor-resume, and the statusline segment
+# render — the slug is the internal key, the display_name is what the
+# user sees. If the topic already exists with a display_name, we don't
+# overwrite (resume case).
+EXISTING_DISPLAY=$(bash "$STATE" get ".topics[\"$SLUG\"].display_name // \"\"")
+if [ -z "$EXISTING_DISPLAY" ] || [ "$EXISTING_DISPLAY" = "null" ]; then
+  bash "$STATE" set ".topics[\"$SLUG\"].display_name" "\"$SUBJECT\""
+fi
 ```
 
 Then populate the concepts array atomically (single jq write for the whole array):

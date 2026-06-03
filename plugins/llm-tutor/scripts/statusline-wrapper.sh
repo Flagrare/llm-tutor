@@ -81,7 +81,15 @@ fi
 
 segment=""
 if $append_segment && [ -x "$SEGMENT_SH" ]; then
-  segment=$(LLM_TUTOR_PERSONA="$persona" bash "$SEGMENT_SH" 2>/dev/null || printf "")
+  # When we have original output to append our segment beneath, signal the
+  # segment renderer to emit a dim full-width separator rule above its row.
+  # That gives the eye a clear "section break" between the host statusline
+  # and llm-tutor's content. Without an original to wrap, no rule is needed
+  # (llm-tutor's row IS the entire statusline in that case).
+  appended_flag=""
+  [ -n "$original_output" ] && appended_flag="1"
+  segment=$(LLM_TUTOR_PERSONA="$persona" LLM_TUTOR_APPENDED="$appended_flag" \
+    bash "$SEGMENT_SH" 2>/dev/null || printf "")
 fi
 
 # --- combine ---

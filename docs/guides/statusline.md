@@ -52,6 +52,20 @@ Four icon modes mirror claude-statusline's pattern so the llm-tutor row matches 
 
 The choice persists in `~/.claude/llm-tutor/statusline.conf`. Nerd-mode glyphs require a Nerd Font in your terminal; the other three modes work anywhere.
 
+## Tuning the topic-name truncation
+
+The active topic's display name renders in the segment as `📖 <name>`. By default we truncate names longer than 40 characters with an ellipsis (`…`); this is a safety net for pathological cases (60+ character subjects), since the wrapped statusline competes with itself for row width.
+
+If you want different behavior, edit `~/.claude/llm-tutor/statusline.conf` and add a line:
+
+```
+SLUG_MAX_LEN=0     # no truncation; render the full name regardless of length
+SLUG_MAX_LEN=60    # truncate at 60 characters instead of 40
+SLUG_MAX_LEN=20    # tight cap for narrow terminals
+```
+
+A garbled value silently falls back to no truncation rather than erroring — the statusline isn't a place to fail loudly.
+
 ## Uninstall
 
 ```

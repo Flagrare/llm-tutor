@@ -40,6 +40,11 @@ The README's Status line is the one-word maturity claim. This is the full ledger
 - `SessionStart` hook removed — the self-locating shim makes it redundant.
 - Migration: users on v0.2.0–v0.4.0 should re-run `/tutor-statusline-install` once to upgrade to the shim. After that, all future upgrades self-heal.
 
+### v0.5.0 — Human topic names, separator rule, configurable truncation
+- **Topics carry a `display_name`** alongside their slug. `/tutor-start "What closures are in Python"` now stores both — the slug `what-closures-are-in-python` stays as the state key, and `"What closures are in Python"` renders in the statusline. Mixed case, spaces, reads as the question you asked rather than a path-style identifier. Backward compatible: topics created before this release continue to render their slug.
+- **Dim full-width separator rule** between the host statusline and llm-tutor's row when the wrapper has an original to append below. Signals "this is a separate section" so the eye doesn't read it as a third row of the host's content. Width auto-detects via `$COLUMNS` → `tput cols` → 80. Mode-aware: `─` for emoji/nerd/unicode, `-` for ascii.
+- **Truncation default bumped from 20 to 40 chars**, with a new `SLUG_MAX_LEN` knob in `~/.claude/llm-tutor/statusline.conf`. Set it to `0` to disable truncation entirely, or any positive integer to set a custom cap. Most real subjects render full-width by default now.
+
 ## Next
 
 - **Plugin marketplace publishing.** Currently shipped via the project's own marketplace.json at `https://github.com/Flagrare/llm-tutor`. The next step is registration in a discoverable plugin index so users find llm-tutor by browsing rather than by direct repo URL.

@@ -56,9 +56,11 @@ SCRIPT_REAL="$(resolve_symlink "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_REAL")" && pwd)"
 TIER_SH="$SCRIPT_DIR/tier.sh"
 
-# Topic-slug truncation. 20 chars fits "python-decorators" comfortably and
-# keeps the row narrow enough to coexist with 80-col terminals.
-SLUG_MAX_LEN=20
+# Topic display-name truncation. Default 40 — wide enough for almost any
+# real subject (the user picked the wording, we shouldn't second-guess it).
+# Overridable in ~/.claude/llm-tutor/statusline.conf as SLUG_MAX_LEN=N.
+# Set to 0 to disable truncation entirely.
+SLUG_MAX_LEN=40
 
 # Silent exit when prerequisites aren't there. A statusline rendering several
 # times a minute should never produce noise from a missing tool.
@@ -125,6 +127,7 @@ ACTIVE_TOPIC=$(jq -r '
 ACQUIRED=0
 TOTAL=0
 concept_bar_filled=0
+ACTIVE_DISPLAY=""
 if [ -n "$ACTIVE_TOPIC" ]; then
   ACQUIRED=$(jq -r --arg s "$ACTIVE_TOPIC" '
     [.topics[$s].concepts[]? | select(.status == "acquired")] | length
@@ -137,6 +140,14 @@ if [ -n "$ACTIVE_TOPIC" ]; then
     [ "$concept_bar_filled" -gt 5 ] && concept_bar_filled=5
     [ "$concept_bar_filled" -lt 0 ] && concept_bar_filled=0
   fi
+  # Read the topic's display_name (set at /tutor-start time from the
+  # user's original subject). Topics created before the schema added this
+  # field don't have one — fall back to the slug-key in that case so the
+  # statusline keeps working for legacy state files.
+  ACTIVE_DISPLAY=$(jq -r --arg s "$ACTIVE_TOPIC" '
+    .topics[$s].display_name // ""
+  ' "$STATE_FILE")
+  [ -z "$ACTIVE_DISPLAY" ] && ACTIVE_DISPLAY="$ACTIVE_TOPIC"
 fi
 
 # --- persona resolution ---
@@ -160,6 +171,7 @@ if [ "$JSON_MODE" = "true" ]; then
     --argjson tier_index "$TIER_INDEX" \
     --argjson xp_bar_filled "$xp_bar_filled" \
     --arg active_topic "$ACTIVE_TOPIC" \
+    --arg active_display "$ACTIVE_DISPLAY" \
     --argjson acquired "$ACQUIRED" \
     --argjson total "$TOTAL" \
     --argjson concept_bar_filled "$concept_bar_filled" \
@@ -169,6 +181,7 @@ if [ "$JSON_MODE" = "true" ]; then
       xp: $xp, xp_bar_filled: $xp_bar_filled,
       cycles: $cycles, cycles_cap: $cycles_cap,
       active_topic: (if $active_topic == "" then null else $active_topic end),
+      active_display: (if $active_display == "" then null else $active_display end),
       acquired: $acquired, total: $total, concept_bar_filled: $concept_bar_filled,
       persona: (if $persona == "" then null else $persona end),
       icons: $icons}'
@@ -256,7 +269,14 @@ fi
 # --- helpers ---
 truncate_slug() {
   local slug="$1" ellipsis="$2"
-  if [ "${#slug}" -le "$SLUG_MAX_LEN" ]; then
+  # SLUG_MAX_LEN=0 means no truncation. Any other value: truncate when
+  # the string exceeds it. Validate that SLUG_MAX_LEN is a positive int
+  # before applying; garbage values silently fall back to no truncation
+  # rather than erroring.
+  if ! [[ "$SLUG_MAX_LEN" =~ ^[0-9]+$ ]]; then
+    printf "%s" "$slug"; return
+  fi
+  if [ "$SLUG_MAX_LEN" -eq 0 ] || [ "${#slug}" -le "$SLUG_MAX_LEN" ]; then
     printf "%s" "$slug"
   else
     printf "%s%s" "${slug:0:$SLUG_MAX_LEN}" "$ellipsis"
@@ -330,9 +350,31 @@ out+="${sep}"
 out+="$(cycles_block)"
 
 if [ -n "$ACTIVE_TOPIC" ]; then
-  slug_disp=$(truncate_slug "$ACTIVE_TOPIC" "$ELLIPSIS")
+  slug_disp=$(truncate_slug "$ACTIVE_DISPLAY" "$ELLIPSIS")
   out+="${sep}"
   out+="${ACCENT}${TOPIC_ICON}${RESET}${ICON_PAD} ${DIM}${slug_disp}${RESET} ${concept_bar_styled}"
 fi
 
-printf "%s" "$out"
+# --- separator rule when appended below another statusline ---
+# The wrapper sets LLM_TUTOR_APPENDED=1 when there's an original statusline
+# above us. We emit a dim full-width horizontal rule on its own line above
+# the segment so the user's eye registers "this is a separate section"
+# rather than "row 3 of the same statusline."
+if [ -n "${LLM_TUTOR_APPENDED:-}" ]; then
+  # Width detection: $COLUMNS isn't always exported; tput cols is the
+  # reliable fallback. 80 is the last resort. The rule character is mode-
+  # aware so ASCII-mode users don't see broken UTF-8.
+  width="${COLUMNS:-}"
+  if ! [[ "$width" =~ ^[0-9]+$ ]] || [ "$width" -le 0 ]; then
+    width=$(tput cols 2>/dev/null || echo 80)
+  fi
+  case "$ICONS" in
+    ascii) rule_char="-" ;;
+    *)     rule_char="─" ;;  # U+2500 BOX DRAWINGS LIGHT HORIZONTAL
+  esac
+  rule=""
+  for (( i=0; i<width; i++ )); do rule="${rule}${rule_char}"; done
+  printf "%s%s%s\n%s" "$DIM" "$rule" "$RESET" "$out"
+else
+  printf "%s" "$out"
+fi
